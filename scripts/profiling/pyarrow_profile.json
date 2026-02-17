@@ -1,0 +1,511 @@
+{
+  "metadata": {
+    "timestamp": "2026-02-17T17:31:18.987230",
+    "profiler": "cprofile",
+    "implementation": "pyarrow",
+    "num_files": 20,
+    "top_n_functions": 50
+  },
+  "functions": [
+    {
+      "name": "<frozen importlib._find_and_load",
+      "mean_cumtime": 0.8251602090000001,
+      "mean_calls": 358,
+      "mean_percall": 0.002304916784916201,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.8251602090000001,
+      "min_cumtime": 0.8251602090000001,
+      "max_cumtime": 0.8251602090000001
+    },
+    {
+      "name": "<frozen importlib._find_and_load_unlocked",
+      "mean_cumtime": 0.8251136250000001,
+      "mean_calls": 358,
+      "mean_percall": 0.0023047866620111734,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.8251136250000001,
+      "min_cumtime": 0.8251136250000001,
+      "max_cumtime": 0.8251136250000001
+    },
+    {
+      "name": "<frozen importlib._load_unlocked",
+      "mean_cumtime": 0.8250301250000001,
+      "mean_calls": 348,
+      "mean_percall": 0.002370776221264368,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.8250301250000001,
+      "min_cumtime": 0.8250301250000001,
+      "max_cumtime": 0.8250301250000001
+    },
+    {
+      "name": "<frozen importlib.exec_module",
+      "mean_cumtime": 0.824994208,
+      "mean_calls": 283,
+      "mean_percall": 0.0029151738798586574,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.824994208,
+      "min_cumtime": 0.824994208,
+      "max_cumtime": 0.824994208
+    },
+    {
+      "name": "<frozen importlib._call_with_frames_removed",
+      "mean_cumtime": 0.8235427500000001,
+      "mean_calls": 976,
+      "mean_percall": 0.0008437938012295083,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.8235427500000001,
+      "min_cumtime": 0.8235427500000001,
+      "max_cumtime": 0.8235427500000001
+    },
+    {
+      "name": "~.<built-in method builtins.exec>",
+      "mean_cumtime": 0.8235401250000001,
+      "mean_calls": 288,
+      "mean_percall": 0.002859514322916667,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.8235401250000001,
+      "min_cumtime": 0.8235401250000001,
+      "max_cumtime": 0.8235401250000001
+    },
+    {
+      "name": "~.<built-in method _imp.exec_dynamic>",
+      "mean_cumtime": 0.807844333,
+      "mean_calls": 64,
+      "mean_percall": 0.012622567703125,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.807844333,
+      "min_cumtime": 0.807844333,
+      "max_cumtime": 0.807844333
+    },
+    {
+      "name": "detectors.find_outliers_pyarrow.detect_outliers_pyarrow",
+      "mean_cumtime": 0.5398971542500001,
+      "mean_calls": 1.05,
+      "mean_percall": 0.5348026219500001,
+      "std_cumtime": 0.5312861160207873,
+      "total_cumtime": 10.797943085,
+      "min_cumtime": 0.064305834,
+      "max_cumtime": 1.9742409580000002
+    },
+    {
+      "name": "~.<built-in method builtins.__import__>",
+      "mean_cumtime": 0.41566212700000005,
+      "mean_calls": 216,
+      "mean_percall": 0.0019243616990740743,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.41566212700000005,
+      "min_cumtime": 0.41566212700000005,
+      "max_cumtime": 0.41566212700000005
+    },
+    {
+      "name": "<frozen importlib.get_code",
+      "mean_cumtime": 0.39635174100000004,
+      "mean_calls": 283,
+      "mean_percall": 0.001400536187279152,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.39635174100000004,
+      "min_cumtime": 0.39635174100000004,
+      "max_cumtime": 0.39635174100000004
+    },
+    {
+      "name": "pyarrow.read_table",
+      "mean_cumtime": 0.36959083765,
+      "mean_calls": 1,
+      "mean_percall": 0.36959083765,
+      "std_cumtime": 0.3836169143384256,
+      "total_cumtime": 7.3918167530000005,
+      "min_cumtime": 0.042376500000000004,
+      "max_cumtime": 1.5500023340000002
+    },
+    {
+      "name": "<frozen importlib.get_data",
+      "mean_cumtime": 0.345113007,
+      "mean_calls": 283,
+      "mean_percall": 0.0012194805901060072,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.345113007,
+      "min_cumtime": 0.345113007,
+      "max_cumtime": 0.345113007
+    },
+    {
+      "name": "~.<built-in method _io.open_code>",
+      "mean_cumtime": 0.336869907,
+      "mean_calls": 283,
+      "mean_percall": 0.0011903530282685512,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.336869907,
+      "min_cumtime": 0.336869907,
+      "max_cumtime": 0.336869907
+    },
+    {
+      "name": "pyarrow.read",
+      "mean_cumtime": 0.32799275840000003,
+      "mean_calls": 1,
+      "mean_percall": 0.32799275840000003,
+      "std_cumtime": 0.28032342057754467,
+      "total_cumtime": 6.559855168,
+      "min_cumtime": 0.04209425,
+      "max_cumtime": 0.980222667
+    },
+    {
+      "name": "<frozen importlib._handle_fromlist",
+      "mean_cumtime": 0.296307543,
+      "mean_calls": 521,
+      "mean_percall": 0.0005687284894433781,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.296307543,
+      "min_cumtime": 0.296307543,
+      "max_cumtime": 0.296307543
+    },
+    {
+      "name": "<frozen importlib.module_from_spec",
+      "mean_cumtime": 0.24055621700000002,
+      "mean_calls": 348,
+      "mean_percall": 0.0006912534971264369,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.24055621700000002,
+      "min_cumtime": 0.24055621700000002,
+      "max_cumtime": 0.24055621700000002
+    },
+    {
+      "name": "<frozen importlib.create_module",
+      "mean_cumtime": 0.234095044,
+      "mean_calls": 64,
+      "mean_percall": 0.0036577350625,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.234095044,
+      "min_cumtime": 0.234095044,
+      "max_cumtime": 0.234095044
+    },
+    {
+      "name": "~.<built-in method _imp.create_dynamic>",
+      "mean_cumtime": 0.23396212800000002,
+      "mean_calls": 64,
+      "mean_percall": 0.0036556582500000003,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.23396212800000002,
+      "min_cumtime": 0.23396212800000002,
+      "max_cumtime": 0.23396212800000002
+    },
+    {
+      "name": "detectors.find_outliers_pyarrow.find_outliers",
+      "mean_cumtime": 0.16608932705,
+      "mean_calls": 1,
+      "mean_percall": 0.16608932705,
+      "std_cumtime": 0.15768874664582924,
+      "total_cumtime": 3.3217865410000003,
+      "min_cumtime": 0.018315416,
+      "max_cumtime": 0.554971459
+    },
+    {
+      "name": "pyarrow.wrapper",
+      "mean_cumtime": 0.16073298325000002,
+      "mean_calls": 4.3,
+      "mean_percall": 0.03413973574583334,
+      "std_cumtime": 0.1551172844871692,
+      "total_cumtime": 3.214659665,
+      "min_cumtime": 0.017415084,
+      "max_cumtime": 0.544377667
+    },
+    {
+      "name": "<frozen importlib._find_spec",
+      "mean_cumtime": 0.067852545,
+      "mean_calls": 353,
+      "mean_percall": 0.00019221684135977337,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.067852545,
+      "min_cumtime": 0.067852545,
+      "max_cumtime": 0.067852545
+    },
+    {
+      "name": "<frozen importlib._get_spec",
+      "mean_cumtime": 0.06384885700000001,
+      "mean_calls": 353,
+      "mean_percall": 0.0001808749490084986,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.06384885700000001,
+      "min_cumtime": 0.06384885700000001,
+      "max_cumtime": 0.06384885700000001
+    },
+    {
+      "name": "<frozen importlib.find_spec",
+      "mean_cumtime": 0.061551255000000006,
+      "mean_calls": 405,
+      "mean_percall": 0.0001519784074074074,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.061551255000000006,
+      "min_cumtime": 0.061551255000000006,
+      "max_cumtime": 0.061551255000000006
+    },
+    {
+      "name": "<frozen importlib._fill_cache",
+      "mean_cumtime": 0.046673793000000005,
+      "mean_calls": 44,
+      "mean_percall": 0.0010607680227272729,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.046673793000000005,
+      "min_cumtime": 0.046673793000000005,
+      "max_cumtime": 0.046673793000000005
+    },
+    {
+      "name": "~.<built-in method posix.listdir>",
+      "mean_cumtime": 0.046215539,
+      "mean_calls": 44,
+      "mean_percall": 0.001050353159090909,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.046215539,
+      "min_cumtime": 0.046215539,
+      "max_cumtime": 0.046215539
+    },
+    {
+      "name": "~.<built-in method builtins.__build_class__>",
+      "mean_cumtime": 0.043476747,
+      "mean_calls": 535,
+      "mean_percall": 8.12649476635514e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.043476747,
+      "min_cumtime": 0.043476747,
+      "max_cumtime": 0.043476747
+    },
+    {
+      "name": "<frozen importlib._compile_bytecode",
+      "mean_cumtime": 0.043212628,
+      "mean_calls": 283,
+      "mean_percall": 0.00015269479858657245,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.043212628,
+      "min_cumtime": 0.043212628,
+      "max_cumtime": 0.043212628
+    },
+    {
+      "name": "numpy.__getattr__",
+      "mean_cumtime": 0.042838417000000004,
+      "mean_calls": 2,
+      "mean_percall": 0.021419208500000002,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.042838417000000004,
+      "min_cumtime": 0.042838417000000004,
+      "max_cumtime": 0.042838417000000004
+    },
+    {
+      "name": "~.<built-in method marshal.loads>",
+      "mean_cumtime": 0.042494913,
+      "mean_calls": 283,
+      "mean_percall": 0.000150158703180212,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.042494913,
+      "min_cumtime": 0.042494913,
+      "max_cumtime": 0.042494913
+    },
+    {
+      "name": "pyarrow.__init__",
+      "mean_cumtime": 0.04160313745,
+      "mean_calls": 1,
+      "mean_percall": 0.04160313745,
+      "std_cumtime": 0.1849552040949018,
+      "total_cumtime": 0.832062749,
+      "min_cumtime": 0.00018041700000000002,
+      "max_cumtime": 0.827390708
+    },
+    {
+      "name": "__init__._compile",
+      "mean_cumtime": 0.017859815,
+      "mean_calls": 358,
+      "mean_percall": 4.9887751396648046e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.017859815,
+      "min_cumtime": 0.017859815,
+      "max_cumtime": 0.017859815
+    },
+    {
+      "name": "_compiler.compile",
+      "mean_cumtime": 0.017214585,
+      "mean_calls": 25,
+      "mean_percall": 0.0006885834,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.017214585,
+      "min_cumtime": 0.017214585,
+      "max_cumtime": 0.017214585
+    },
+    {
+      "name": "__init__.compile",
+      "mean_cumtime": 0.017006623000000002,
+      "mean_calls": 19,
+      "mean_percall": 0.0008950854210526317,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.017006623000000002,
+      "min_cumtime": 0.017006623000000002,
+      "max_cumtime": 0.017006623000000002
+    },
+    {
+      "name": "_parser.parse",
+      "mean_cumtime": 0.013275917000000002,
+      "mean_calls": 25,
+      "mean_percall": 0.00053103668,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.013275917000000002,
+      "min_cumtime": 0.013275917000000002,
+      "max_cumtime": 0.013275917000000002
+    },
+    {
+      "name": "_parser._parse_sub",
+      "mean_cumtime": 0.013082414,
+      "mean_calls": 98,
+      "mean_percall": 0.00013349402040816328,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.013082414,
+      "min_cumtime": 0.013082414,
+      "max_cumtime": 0.013082414
+    },
+    {
+      "name": "_parser._parse",
+      "mean_cumtime": 0.012930959,
+      "mean_calls": 129,
+      "mean_percall": 0.00010023999224806202,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.012930959,
+      "min_cumtime": 0.012930959,
+      "max_cumtime": 0.012930959
+    },
+    {
+      "name": "<frozen importlib.acquire",
+      "mean_cumtime": 0.010573503000000001,
+      "mean_calls": 1158,
+      "mean_percall": 9.130831606217618e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.010573503000000001,
+      "min_cumtime": 0.010573503000000001,
+      "max_cumtime": 0.010573503000000001
+    },
+    {
+      "name": "<frozen importlib._lock_unlock_module",
+      "mean_cumtime": 0.010269384000000001,
+      "mean_calls": 800,
+      "mean_percall": 1.283673e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.010269384000000001,
+      "min_cumtime": 0.010269384000000001,
+      "max_cumtime": 0.010269384000000001
+    },
+    {
+      "name": "pandas.ExcelFile",
+      "mean_cumtime": 0.009014083,
+      "mean_calls": 1,
+      "mean_percall": 0.009014083,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.009014083,
+      "min_cumtime": 0.009014083,
+      "max_cumtime": 0.009014083
+    },
+    {
+      "name": "<frozen importlib._path_stat",
+      "mean_cumtime": 0.008160163,
+      "mean_calls": 1282,
+      "mean_percall": 6.3651817472698906e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.008160163,
+      "min_cumtime": 0.008160163,
+      "max_cumtime": 0.008160163
+    },
+    {
+      "name": "_parser.__getitem__",
+      "mean_cumtime": 0.008028977,
+      "mean_calls": 1718,
+      "mean_percall": 4.673444121071013e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.008028977,
+      "min_cumtime": 0.008028977,
+      "max_cumtime": 0.008028977
+    },
+    {
+      "name": "platform.python_implementation",
+      "mean_cumtime": 0.008018125000000001,
+      "mean_calls": 1,
+      "mean_percall": 0.008018125000000001,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.008018125000000001,
+      "min_cumtime": 0.008018125000000001,
+      "max_cumtime": 0.008018125000000001
+    },
+    {
+      "name": "platform._sys_version",
+      "mean_cumtime": 0.008013000000000001,
+      "mean_calls": 1,
+      "mean_percall": 0.008013000000000001,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.008013000000000001,
+      "min_cumtime": 0.008013000000000001,
+      "max_cumtime": 0.008013000000000001
+    },
+    {
+      "name": "~.<built-in method posix.stat>",
+      "mean_cumtime": 0.007686025000000001,
+      "mean_calls": 1283,
+      "mean_percall": 5.990666406858925e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.007686025000000001,
+      "min_cumtime": 0.007686025000000001,
+      "max_cumtime": 0.007686025000000001
+    },
+    {
+      "name": "dateutil.<module>",
+      "mean_cumtime": 0.006766500000000001,
+      "mean_calls": 1,
+      "mean_percall": 0.006766500000000001,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.006766500000000001,
+      "min_cumtime": 0.006766500000000001,
+      "max_cumtime": 0.006766500000000001
+    },
+    {
+      "name": "textwrap.dedent",
+      "mean_cumtime": 0.005620461,
+      "mean_calls": 102,
+      "mean_percall": 5.510255882352941e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.005620461,
+      "min_cumtime": 0.005620461,
+      "max_cumtime": 0.005620461
+    },
+    {
+      "name": "csv.<module>",
+      "mean_cumtime": 0.0056018330000000005,
+      "mean_calls": 1,
+      "mean_percall": 0.0056018330000000005,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.0056018330000000005,
+      "min_cumtime": 0.0056018330000000005,
+      "max_cumtime": 0.0056018330000000005
+    },
+    {
+      "name": "<frozen importlib.__enter__",
+      "mean_cumtime": 0.005581200000000001,
+      "mean_calls": 358,
+      "mean_percall": 1.5589944134078212e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.005581200000000001,
+      "min_cumtime": 0.005581200000000001,
+      "max_cumtime": 0.005581200000000001
+    },
+    {
+      "name": "<frozen importlib._init_module_attrs",
+      "mean_cumtime": 0.005503846000000001,
+      "mean_calls": 348,
+      "mean_percall": 1.5815649425287357e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.005503846000000001,
+      "min_cumtime": 0.005503846000000001,
+      "max_cumtime": 0.005503846000000001
+    },
+    {
+      "name": "~.<method 'read' of '_io.BufferedReader' objects>",
+      "mean_cumtime": 0.0054348320000000006,
+      "mean_calls": 288,
+      "mean_percall": 1.8870944444444445e-05,
+      "std_cumtime": 0.0,
+      "total_cumtime": 0.0054348320000000006,
+      "min_cumtime": 0.0054348320000000006,
+      "max_cumtime": 0.0054348320000000006
+    }
+  ]
+}

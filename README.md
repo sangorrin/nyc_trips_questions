@@ -15,9 +15,6 @@ Both implementations identify trips violating physics-based constraints (invalid
 ```bash
 # Install in editable mode with dependencies
 pip install -e .
-
-# Install with benchmark tools
-pip install -e ".[benchmark]"
 ```
 
 ## Usage
@@ -52,6 +49,9 @@ stats = result.stats  # Detection statistics
 ### Benchmarking
 
 ```bash
+# Install with benchmark tools
+pip install -e ".[benchmark]"
+
 # Benchmark all parquet files
 python scripts/benchmark.py
 
@@ -62,6 +62,28 @@ python scripts/benchmark.py --samples 20
 python scripts/benchmark.py --output results.json --html report.html
 ```
 
+### Profiling
+
+```bash
+# Install profiling dependencies
+pip install -e ".[profiling]"
+
+# Profile both implementations to identify bottlenecks
+python scripts/profiling.py --samples 10
+
+# With LLM analysis (requires ANTHROPIC_API_KEY and LLM_MODEL env vars)
+export LLM_MODEL=claude-3-5-sonnet-20241022
+export LLM_API_KEY=your-api-key
+python scripts/profiling.py --samples 5
+
+# View results
+open scripts/profiling/profiling_report.html
+```
+
+Generates:
+- `pyarrow_profile.json` / `duckdb_profile.json` - Function-level timing statistics
+- `profiling_report.html` - Interactive report with top bottlenecks and AI analysis
+
 ## Outlier Detection Logic
 
 **Phase 1**: Filter to top percentile by trip distance (default: 90th percentile)
@@ -71,33 +93,4 @@ python scripts/benchmark.py --output results.json --html report.html
 - Duration: ≤ 0 or > 10 hours
 - Speed: < 2.5 or > 80 mph
 
-## Project Structure
 
-```
-.
-├── detectors/
-│   ├── __init__.py                 # Module exports
-│   ├── find_outliers_pyarrow.py    # PyArrow implementation
-│   └── find_outliers_duckdb.py     # DuckDB implementation
-├── scripts/
-│   └── benchmark.py                # Performance benchmarking
-├── parquets/                       # Input data directory
-├── pyproject.toml                  # Package configuration
-└── requirements.txt                # Editable install
-```
-
-## Performance Metrics
-
-The benchmark tracks:
-- **Processing time**: Data loading + outlier detection
-- **Export time**: Writing results to file
-- **Total time**: End-to-end execution
-- **Memory usage**: Peak RSS memory consumption
-
-## Requirements
-
-- Python ≥ 3.14
-- PyArrow ≥ 23.0.0
-- DuckDB ≥ 1.4.4
-- matplotlib ≥ 3.7.0 (for benchmarking)
-- psutil ≥ 5.9.0 (for benchmarking)

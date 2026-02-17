@@ -1,0 +1,511 @@
+{
+  "metadata": {
+    "timestamp": "2026-02-17T17:31:18.989334",
+    "profiler": "cprofile",
+    "implementation": "duckdb",
+    "num_files": 20,
+    "top_n_functions": 50
+  },
+  "functions": [
+    {
+      "name": "~.<built-in method _duckdb.execute>",
+      "mean_cumtime": 1.39881693965,
+      "mean_calls": 5,
+      "mean_percall": 0.27976338793,
+      "std_cumtime": 1.1028308869368901,
+      "total_cumtime": 27.976338793,
+      "min_cumtime": 0.133787959,
+      "max_cumtime": 3.8216451670000002
+    },
+    {
+      "name": "detectors.find_outliers_duckdb.detect_outliers_duckdb",
+      "mean_cumtime": 1.3601082125000001,
+      "mean_calls": 1,
+      "mean_percall": 1.3601082125000001,
+      "std_cumtime": 1.087400595315875,
+      "total_cumtime": 27.202164250000003,
+      "min_cumtime": 0.140123833,
+      "max_cumtime": 3.828352208
+    },
+    {
+      "name": "threading.wait",
+      "mean_cumtime": 1.0881490833333334,
+      "mean_calls": 1,
+      "mean_percall": 1.0881490833333334,
+      "std_cumtime": 1.342762123007724,
+      "total_cumtime": 3.2644472500000004,
+      "min_cumtime": 0.27362583300000004,
+      "max_cumtime": 2.63796225
+    },
+    {
+      "name": "~.<built-in method _duckdb.connect>",
+      "mean_cumtime": 0.00430951665,
+      "mean_calls": 1,
+      "mean_percall": 0.00430951665,
+      "std_cumtime": 0.00026595250900514973,
+      "total_cumtime": 0.08619033300000001,
+      "min_cumtime": 0.00393775,
+      "max_cumtime": 0.004926084000000001
+    },
+    {
+      "name": "detectors.find_outliers_duckdb.resolve_column_names",
+      "mean_cumtime": 0.0010554751000000002,
+      "mean_calls": 1,
+      "mean_percall": 0.0010554751000000002,
+      "std_cumtime": 0.0006416610725020771,
+      "total_cumtime": 0.021109502000000002,
+      "min_cumtime": 0.000379125,
+      "max_cumtime": 0.0026750840000000003
+    },
+    {
+      "name": "~.<built-in method _duckdb.fetch_arrow_table>",
+      "mean_cumtime": 0.0009222956500000001,
+      "mean_calls": 1,
+      "mean_percall": 0.0009222956500000001,
+      "std_cumtime": 0.0003197711017016745,
+      "total_cumtime": 0.018445913,
+      "min_cumtime": 0.000563666,
+      "max_cumtime": 0.002002208
+    },
+    {
+      "name": "~.<built-in method _duckdb.close>",
+      "mean_cumtime": 0.0006686958,
+      "mean_calls": 1,
+      "mean_percall": 0.0006686958,
+      "std_cumtime": 0.0001292330382390053,
+      "total_cumtime": 0.013373916000000001,
+      "min_cumtime": 0.0005517920000000001,
+      "max_cumtime": 0.001022708
+    },
+    {
+      "name": "<frozen abc>.__subclasscheck__",
+      "mean_cumtime": 8.475e-05,
+      "mean_calls": 27,
+      "mean_percall": 3.1388888888888887e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 8.475e-05,
+      "min_cumtime": 8.475e-05,
+      "max_cumtime": 8.475e-05
+    },
+    {
+      "name": "~.<built-in method _abc._abc_subclasscheck>",
+      "mean_cumtime": 8.3959e-05,
+      "mean_calls": 27,
+      "mean_percall": 3.109592592592593e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 8.3959e-05,
+      "min_cumtime": 8.3959e-05,
+      "max_cumtime": 8.3959e-05
+    },
+    {
+      "name": "~.<built-in method _duckdb.fetchall>",
+      "mean_cumtime": 6.758745e-05,
+      "mean_calls": 1,
+      "mean_percall": 6.758745e-05,
+      "std_cumtime": 0.0001283230240216073,
+      "total_cumtime": 0.0013517490000000002,
+      "min_cumtime": 2.3166e-05,
+      "max_cumtime": 0.000523125
+    },
+    {
+      "name": "tqdm.get_instances",
+      "mean_cumtime": 2.811066666666667e-05,
+      "mean_calls": 2,
+      "mean_percall": 1.4055333333333334e-05,
+      "std_cumtime": 8.455529394031656e-06,
+      "total_cumtime": 8.4332e-05,
+      "min_cumtime": 2.3166e-05,
+      "max_cumtime": 3.7874000000000004e-05
+    },
+    {
+      "name": "profiling.stop",
+      "mean_cumtime": 2.4797950000000002e-05,
+      "mean_calls": 1,
+      "mean_percall": 2.4797950000000002e-05,
+      "std_cumtime": 1.896226709602659e-06,
+      "total_cumtime": 0.000495959,
+      "min_cumtime": 2.2041e-05,
+      "max_cumtime": 3.075e-05
+    },
+    {
+      "name": "_weakrefset.copy",
+      "mean_cumtime": 2.1972333333333333e-05,
+      "mean_calls": 2,
+      "mean_percall": 1.0986166666666667e-05,
+      "std_cumtime": 7.566429298773189e-06,
+      "total_cumtime": 6.5917e-05,
+      "min_cumtime": 1.7542000000000002e-05,
+      "max_cumtime": 3.0709e-05
+    },
+    {
+      "name": "~.<method 'disable' of '_lsprof.Profiler' objects>",
+      "mean_cumtime": 2.1825000000000002e-05,
+      "mean_calls": 1,
+      "mean_percall": 2.1825000000000002e-05,
+      "std_cumtime": 1.7752123371882202e-06,
+      "total_cumtime": 0.00043650000000000004,
+      "min_cumtime": 1.9542e-05,
+      "max_cumtime": 2.775e-05
+    },
+    {
+      "name": "_weakrefset.__init__",
+      "mean_cumtime": 1.9277666666666667e-05,
+      "mean_calls": 2,
+      "mean_percall": 9.638833333333333e-06,
+      "std_cumtime": 7.266417572183238e-06,
+      "total_cumtime": 5.783300000000001e-05,
+      "min_cumtime": 1.4917000000000001e-05,
+      "max_cumtime": 2.7666000000000002e-05
+    },
+    {
+      "name": "<frozen abc>.__instancecheck__",
+      "mean_cumtime": 1.5424800000000002e-05,
+      "mean_calls": 10,
+      "mean_percall": 1.5424800000000001e-06,
+      "std_cumtime": 1.908019208664205e-05,
+      "total_cumtime": 0.000308496,
+      "min_cumtime": 9.291000000000001e-06,
+      "max_cumtime": 9.6291e-05
+    },
+    {
+      "name": "_weakrefset.update",
+      "mean_cumtime": 1.5222333333333335e-05,
+      "mean_calls": 2,
+      "mean_percall": 7.6111666666666675e-06,
+      "std_cumtime": 6.845467210741233e-06,
+      "total_cumtime": 4.566700000000001e-05,
+      "min_cumtime": 1.1125000000000001e-05,
+      "max_cumtime": 2.3125000000000003e-05
+    },
+    {
+      "name": "~.<built-in method _duckdb.fetchone>",
+      "mean_cumtime": 1.236875e-05,
+      "mean_calls": 3,
+      "mean_percall": 4.122916666666667e-06,
+      "std_cumtime": 1.3121785771841623e-06,
+      "total_cumtime": 0.00024737500000000004,
+      "min_cumtime": 9.458e-06,
+      "max_cumtime": 1.5e-05
+    },
+    {
+      "name": "tqdm.__enter__",
+      "mean_cumtime": 1.1972e-05,
+      "mean_calls": 1,
+      "mean_percall": 1.1972e-05,
+      "std_cumtime": 7.084151325317661e-07,
+      "total_cumtime": 3.5916e-05,
+      "min_cumtime": 1.125e-05,
+      "max_cumtime": 1.2666e-05
+    },
+    {
+      "name": "~.<built-in method _abc._abc_instancecheck>",
+      "mean_cumtime": 1.166235e-05,
+      "mean_calls": 10,
+      "mean_percall": 1.166235e-06,
+      "std_cumtime": 1.92014042586117e-05,
+      "total_cumtime": 0.000233247,
+      "min_cumtime": 5.625e-06,
+      "max_cumtime": 9.3083e-05
+    },
+    {
+      "name": "tqdm.__exit__",
+      "mean_cumtime": 1.1124666666666667e-05,
+      "mean_calls": 1,
+      "mean_percall": 1.1124666666666667e-05,
+      "std_cumtime": 4.072836890096795e-06,
+      "total_cumtime": 3.3374e-05,
+      "min_cumtime": 8.291e-06,
+      "max_cumtime": 1.5792e-05
+    },
+    {
+      "name": "tqdm.acquire",
+      "mean_cumtime": 1.0500333333333333e-05,
+      "mean_calls": 1,
+      "mean_percall": 1.0500333333333333e-05,
+      "std_cumtime": 6.136752670047349e-07,
+      "total_cumtime": 3.1501e-05,
+      "min_cumtime": 9.959e-06,
+      "max_cumtime": 1.1167e-05
+    },
+    {
+      "name": "tqdm.release",
+      "mean_cumtime": 1.0264e-05,
+      "mean_calls": 1,
+      "mean_percall": 1.0264e-05,
+      "std_cumtime": 4.162333360027762e-06,
+      "total_cumtime": 3.0792e-05,
+      "min_cumtime": 7.417e-06,
+      "max_cumtime": 1.5041e-05
+    },
+    {
+      "name": "_weakrefset.add",
+      "mean_cumtime": 8.139000000000001e-06,
+      "mean_calls": 2,
+      "mean_percall": 4.069500000000001e-06,
+      "std_cumtime": 5.4780690941243165e-06,
+      "total_cumtime": 2.4417e-05,
+      "min_cumtime": 4.75e-06,
+      "max_cumtime": 1.4459000000000002e-05
+    },
+    {
+      "name": "threading._acquire_restore",
+      "mean_cumtime": 5.916666666666667e-06,
+      "mean_calls": 1,
+      "mean_percall": 5.916666666666667e-06,
+      "std_cumtime": 1.4459907791315039e-06,
+      "total_cumtime": 1.775e-05,
+      "min_cumtime": 4.666e-06,
+      "max_cumtime": 7.5e-06
+    },
+    {
+      "name": "~.<method 'acquire' of '_multiprocessing.SemLock' objects>",
+      "mean_cumtime": 5.791666666666667e-06,
+      "mean_calls": 1,
+      "mean_percall": 5.791666666666667e-06,
+      "std_cumtime": 1.5215033136123409e-06,
+      "total_cumtime": 1.7375000000000002e-05,
+      "min_cumtime": 4.0830000000000005e-06,
+      "max_cumtime": 7.000000000000001e-06
+    },
+    {
+      "name": "_weakrefset.__iter__",
+      "mean_cumtime": 4.7370000000000006e-06,
+      "mean_calls": 8,
+      "mean_percall": 5.921250000000001e-07,
+      "std_cumtime": 5.901550643686795e-07,
+      "total_cumtime": 1.4211e-05,
+      "min_cumtime": 4.3750000000000005e-06,
+      "max_cumtime": 5.4180000000000005e-06
+    },
+    {
+      "name": "~.<method 'lower' of 'str' objects>",
+      "mean_cumtime": 4.0192e-06,
+      "mean_calls": 25.3,
+      "mean_percall": 1.5854298901098901e-07,
+      "std_cumtime": 2.3622539994451776e-06,
+      "total_cumtime": 8.038400000000001e-05,
+      "min_cumtime": 2.5010000000000003e-06,
+      "max_cumtime": 1.2290000000000001e-05
+    },
+    {
+      "name": "~.<method 'add' of 'set' objects>",
+      "mean_cumtime": 3.931e-06,
+      "mean_calls": 2,
+      "mean_percall": 1.9655e-06,
+      "std_cumtime": 8.541592357400348e-07,
+      "total_cumtime": 1.1793e-05,
+      "min_cumtime": 3.417e-06,
+      "max_cumtime": 4.9170000000000005e-06
+    },
+    {
+      "name": "tqdm.get_lock",
+      "mean_cumtime": 3.3750000000000003e-06,
+      "mean_calls": 1,
+      "mean_percall": 3.3750000000000003e-06,
+      "std_cumtime": 4.506939094329987e-07,
+      "total_cumtime": 1.0125e-05,
+      "min_cumtime": 3e-06,
+      "max_cumtime": 3.875e-06
+    },
+    {
+      "name": "~.<method 'release' of '_multiprocessing.SemLock' objects>",
+      "mean_cumtime": 2.5276666666666665e-06,
+      "mean_calls": 1,
+      "mean_percall": 2.5276666666666665e-06,
+      "std_cumtime": 1.5904984543637045e-06,
+      "total_cumtime": 7.583e-06,
+      "min_cumtime": 1.333e-06,
+      "max_cumtime": 4.333e-06
+    },
+    {
+      "name": "~.<built-in method time.time>",
+      "mean_cumtime": 2.48755e-06,
+      "mean_calls": 4.15,
+      "mean_percall": 5.9699e-07,
+      "std_cumtime": 1.6514895820057976e-06,
+      "total_cumtime": 4.9751000000000005e-05,
+      "min_cumtime": 9.58e-07,
+      "max_cumtime": 5.835e-06
+    },
+    {
+      "name": "<frozen _collections_abc>.__subclasshook__",
+      "mean_cumtime": 2.2080000000000003e-06,
+      "mean_calls": 26,
+      "mean_percall": 8.492307692307693e-08,
+      "std_cumtime": 0.0,
+      "total_cumtime": 2.2080000000000003e-06,
+      "min_cumtime": 2.2080000000000003e-06,
+      "max_cumtime": 2.2080000000000003e-06
+    },
+    {
+      "name": "<frozen _collections_abc>._check_methods",
+      "mean_cumtime": 2.0000000000000003e-06,
+      "mean_calls": 1,
+      "mean_percall": 2.0000000000000003e-06,
+      "std_cumtime": 0.0,
+      "total_cumtime": 2.0000000000000003e-06,
+      "min_cumtime": 2.0000000000000003e-06,
+      "max_cumtime": 2.0000000000000003e-06
+    },
+    {
+      "name": "tqdm.__hash__",
+      "mean_cumtime": 1.8746666666666668e-06,
+      "mean_calls": 2,
+      "mean_percall": 9.373333333333334e-07,
+      "std_cumtime": 3.8144505939038376e-07,
+      "total_cumtime": 5.624000000000001e-06,
+      "min_cumtime": 1.542e-06,
+      "max_cumtime": 2.291e-06
+    },
+    {
+      "name": "threading.__exit__",
+      "mean_cumtime": 1.7363333333333334e-06,
+      "mean_calls": 1,
+      "mean_percall": 1.7363333333333334e-06,
+      "std_cumtime": 3.7355900917168815e-07,
+      "total_cumtime": 5.2090000000000004e-06,
+      "min_cumtime": 1.5e-06,
+      "max_cumtime": 2.167e-06
+    },
+    {
+      "name": "~.<method 'acquire' of '_thread.lock' objects>",
+      "mean_cumtime": 1.7223333333333334e-06,
+      "mean_calls": 3,
+      "mean_percall": 5.741111111111111e-07,
+      "std_cumtime": 2.3094010767585053e-08,
+      "total_cumtime": 5.167e-06,
+      "min_cumtime": 1.709e-06,
+      "max_cumtime": 1.7490000000000001e-06
+    },
+    {
+      "name": "~.<built-in method builtins.len>",
+      "mean_cumtime": 1.5855000000000001e-06,
+      "mean_calls": 1,
+      "mean_percall": 1.5855000000000001e-06,
+      "std_cumtime": 1.850921534348712e-07,
+      "total_cumtime": 3.171e-05,
+      "min_cumtime": 1.333e-06,
+      "max_cumtime": 1.958e-06
+    },
+    {
+      "name": "~.<built-in method builtins.hasattr>",
+      "mean_cumtime": 1.556e-06,
+      "mean_calls": 3,
+      "mean_percall": 5.186666666666667e-07,
+      "std_cumtime": 6.02487344265421e-07,
+      "total_cumtime": 4.668e-06,
+      "min_cumtime": 1.167e-06,
+      "max_cumtime": 2.25e-06
+    },
+    {
+      "name": "~.<method 'join' of 'str' objects>",
+      "mean_cumtime": 1.4729000000000001e-06,
+      "mean_calls": 1,
+      "mean_percall": 1.4729000000000001e-06,
+      "std_cumtime": 2.3340159653086763e-07,
+      "total_cumtime": 2.9458e-05,
+      "min_cumtime": 1.167e-06,
+      "max_cumtime": 2.0830000000000002e-06
+    },
+    {
+      "name": "threading.__enter__",
+      "mean_cumtime": 1.0276666666666667e-06,
+      "mean_calls": 1,
+      "mean_percall": 1.0276666666666667e-06,
+      "std_cumtime": 1.6858627860337074e-07,
+      "total_cumtime": 3.083e-06,
+      "min_cumtime": 8.33e-07,
+      "max_cumtime": 1.125e-06
+    },
+    {
+      "name": "threading._is_owned",
+      "mean_cumtime": 9.440000000000001e-07,
+      "mean_calls": 1,
+      "mean_percall": 9.440000000000001e-07,
+      "std_cumtime": 8.646964785403024e-08,
+      "total_cumtime": 2.832e-06,
+      "min_cumtime": 8.750000000000001e-07,
+      "max_cumtime": 1.041e-06
+    },
+    {
+      "name": "~.<method 'copy' of 'set' objects>",
+      "mean_cumtime": 9.023333333333333e-07,
+      "mean_calls": 4,
+      "mean_percall": 2.2558333333333333e-07,
+      "std_cumtime": 1.2853533885019065e-07,
+      "total_cumtime": 2.707e-06,
+      "min_cumtime": 7.91e-07,
+      "max_cumtime": 1.043e-06
+    },
+    {
+      "name": "~.<method 'remove' of 'collections.deque' objects>",
+      "mean_cumtime": 7.636666666666667e-07,
+      "mean_calls": 1,
+      "mean_percall": 7.636666666666667e-07,
+      "std_cumtime": 2.541148034517732e-07,
+      "total_cumtime": 2.291e-06,
+      "min_cumtime": 5.420000000000001e-07,
+      "max_cumtime": 1.041e-06
+    },
+    {
+      "name": "~.<built-in method builtins.id>",
+      "mean_cumtime": 7.223333333333334e-07,
+      "mean_calls": 2,
+      "mean_percall": 3.611666666666667e-07,
+      "std_cumtime": 1.672253967952635e-07,
+      "total_cumtime": 2.167e-06,
+      "min_cumtime": 5.43e-07,
+      "max_cumtime": 8.74e-07
+    },
+    {
+      "name": "threading._release_save",
+      "mean_cumtime": 7.08e-07,
+      "mean_calls": 1,
+      "mean_percall": 7.08e-07,
+      "std_cumtime": 4.199999999999998e-08,
+      "total_cumtime": 2.1240000000000003e-06,
+      "min_cumtime": 6.660000000000001e-07,
+      "max_cumtime": 7.5e-07
+    },
+    {
+      "name": "<string>.__init__",
+      "mean_cumtime": 5.897e-07,
+      "mean_calls": 1,
+      "mean_percall": 5.897e-07,
+      "std_cumtime": 2.8697480175462317e-07,
+      "total_cumtime": 1.1794000000000001e-05,
+      "min_cumtime": 2.92e-07,
+      "max_cumtime": 1.5410000000000002e-06
+    },
+    {
+      "name": "~.<method '__exit__' of '_thread.lock' objects>",
+      "mean_cumtime": 2.5000000000000004e-07,
+      "mean_calls": 1,
+      "mean_percall": 2.5000000000000004e-07,
+      "std_cumtime": 7.274613391789285e-08,
+      "total_cumtime": 7.5e-07,
+      "min_cumtime": 1.66e-07,
+      "max_cumtime": 2.92e-07
+    },
+    {
+      "name": "~.<method 'append' of 'collections.deque' objects>",
+      "mean_cumtime": 2.3633333333333335e-07,
+      "mean_calls": 1,
+      "mean_percall": 2.3633333333333335e-07,
+      "std_cumtime": 1.2722159145889243e-07,
+      "total_cumtime": 7.09e-07,
+      "min_cumtime": 1.2500000000000002e-07,
+      "max_cumtime": 3.75e-07
+    },
+    {
+      "name": "threading.is_set",
+      "mean_cumtime": 2.3633333333333335e-07,
+      "mean_calls": 2,
+      "mean_percall": 1.1816666666666667e-07,
+      "std_cumtime": 1.0576546380238369e-07,
+      "total_cumtime": 7.09e-07,
+      "min_cumtime": 1.24e-07,
+      "max_cumtime": 3.34e-07
+    }
+  ]
+}

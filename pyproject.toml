@@ -27,6 +27,12 @@ dependencies = [
 benchmark = [
     "matplotlib>=3.10.8",
     "psutil>=7.2.2",
+    "tqdm>=4.66.0",
+    "anthropic>=0.35.0",
+]
+profiling = [
+    "tqdm>=4.67.3",
+    "anthropic>=0.79.0"
 ]
 
 [project.scripts]

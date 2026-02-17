@@ -787,15 +787,8 @@ Provide ONLY the HTML content (no markdown, no code fences), starting with your 
 Format as clean HTML with <h3> for sections, <h4> for subsections, <p> for paragraphs, and <ul>/<li> for lists.
 """
 
-            # Handle model naming
-            model = llm_model or 'claude-3-5-sonnet-20241022'
-            if 'anthropic/' in model:
-                model = model.replace('anthropic/', '')
-            model_map = {
-                'claude-sonnet-4-5': 'claude-sonnet-4-20250514',
-                'claude-3-5-sonnet': 'claude-3-5-sonnet-20241022',
-            }
-            model = model_map.get(model, model)
+            # Strip anthropic/ prefix if present (for OpenAI Router compatibility)
+            model = llm_model.replace('anthropic/', '') if 'anthropic/' in llm_model else llm_model
 
             # Call LLM
             client = anthropic.Anthropic(api_key=llm_api_key)
