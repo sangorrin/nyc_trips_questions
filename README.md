@@ -1,14 +1,15 @@
 # NYC Taxi Outlier Detection
 
-Performance comparison of PyArrow vs DuckDB for detecting outlier taxi trips using physics-based validation.
+Performance comparison of different implementations for detecting outlier taxi trips using physics-based validation.
 
 ## Overview
 
-This project implements outlier detection for NYC Yellow Taxi trip data using two different approaches:
+This project implements outlier detection for NYC Yellow Taxi trip data using three approaches:
 - **PyArrow**: Vectorized columnar operations with zero-copy filtering
+- **PyArrow Optimized**: Leverages pre-sorted parquet files to read only top 10% (row group 0)
 - **DuckDB**: SQL-based analytical queries with single-pass detection
 
-Both implementations identify trips violating physics-based constraints (invalid distance, speed, or duration) within the top percentile of trip distances.
+All implementations identify trips violating physics-based constraints (invalid distance, speed, or duration) within the top percentile of trip distances.
 
 ## Installation
 
@@ -25,6 +26,9 @@ pip install -e .
 # PyArrow implementation
 find-outliers-pyarrow parquets/yellow_tripdata_2023-01.parquet
 
+# PyArrow Optimized (requires optimized parquet files)
+find-outliers-pyarrow-optimized parquets_optimized/yellow_tripdata_2023-01.parquet
+
 # DuckDB implementation
 find-outliers-duckdb parquets/yellow_tripdata_2023-01.parquet
 
@@ -35,10 +39,14 @@ find-outliers-pyarrow input.parquet --output-format csv --output results.csv
 ### Python API
 
 ```python
-from detectors import detect_outliers_pyarrow, detect_outliers_duckdb, DEFAULT_CONFIG
+from detectors import detect_outliers_pyarrow, detect_outliers_pyarrow_optimized, detect_outliers_duckdb, DEFAULT_CONFIG
 
-# Run detection
+# Run detection with original PyArrow
 result = detect_outliers_pyarrow('data.parquet', DEFAULT_CONFIG)
+print(f"Found {result.outlier_count} outliers in {result.processing_time:.2f}s")
+
+# Run detection with optimized PyArrow (on pre-sorted files)
+result = detect_outliers_pyarrow_optimized('data_optimized.parquet', DEFAULT_CONFIG)
 print(f"Found {result.outlier_count} outliers in {result.processing_time:.2f}s")
 
 # Access results
@@ -48,19 +56,53 @@ stats = result.stats  # Detection statistics
 
 ### Benchmarking
 
+#### Comparing PyArrow vs DuckDB
+
+Compare the two implementation approaches (PyArrow's columnar operations vs DuckDB's SQL engine):
+
 ```bash
 # Install with benchmark tools
 pip install -e ".[benchmark]"
 
-# Benchmark all parquet files
-python scripts/benchmark.py
+# Step 1: Benchmark both implementations on sample files
+python scripts/benchmark.py \
+  --parquets-path parquets \
+  --samples 20 \
+  --output-path scripts/benchmark/ \
+  --implementations pyarrow duckdb
 
-# Sample 20 files distributed across date range
-python scripts/benchmark.py --samples 20
-
-# Generate comparison plots and analysis
-python scripts/benchmark.py --output results.json --html report.html
+# Step 2: View results
+open scripts/benchmark/benchmark_report.html
 ```
+
+Generates in `scripts/benchmark/`:
+- `results.json` - Raw benchmark data
+- `benchmark_report.html` - Interactive report with plots and AI analysis
+- `*.png` - Performance comparison plots
+
+#### Comparing PyArrow vs PyArrow Optimized
+
+Compare the original PyArrow implementation against the optimized version that leverages pre-sorted parquet files:
+
+```bash
+# Step 1: Optimize parquet files (sort by distance, create 10 row groups)
+python scripts/optimize_parquets.py \
+  --samples 50 \
+  --parquets-path parquets \
+  --output-path parquets_optimized
+
+# Step 2: Benchmark both PyArrow versions on optimized files
+python scripts/benchmark.py \
+  --parquets-path parquets_optimized \
+  --samples 50 \
+  --output-path scripts/benchmark_optimized/ \
+  --implementations pyarrow pyarrow_optimized
+
+# Step 3: View results
+open scripts/benchmark_optimized/benchmark_report.html
+```
+
+The optimized version reads only the first row group (top 10% by distance), eliminating percentile calculation and reducing I/O by ~90%.
 
 ### Profiling
 
