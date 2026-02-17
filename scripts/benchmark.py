@@ -847,24 +847,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Determine output directory and results file path
-    output_path = args.output_path
-    if output_path.is_dir() or str(output_path).endswith('/'):
-        # If directory, use default filename
-        output_dir = output_path
-        results_json_path = output_dir / "results.json"
-    else:
-        # If file path specified, use it
-        output_dir = output_path.parent
-        results_json_path = output_path
+    # Output path is always treated as a directory
+    output_dir = args.output_path
+    results_json_path = output_dir / "results.json"
+    html_report_path = output_dir / "benchmark_report.html"
 
     # Ensure output directory exists
-    if output_dir != Path('.') and not output_dir.exists():
+    if not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
         print(f"Created output directory: {output_dir}")
-
-    # Derive HTML report path from output directory
-    html_report_path = output_dir / "benchmark_report.html"
 
     # Validate parquets directory
     if not args.parquets_path.exists():
@@ -977,10 +968,9 @@ def main():
     print(f"{'='*80}")
     print("\nOutputs:")
     print(f"  📊 Results JSON: {results_json_path}")
-    if plots:
-        print(f"  📈 Time plot: {plots.get('time_plot', 'N/A')}")
-        print(f"  📈 Memory plot: {plots.get('memory_plot', 'N/A')}")
     print(f"  📄 HTML report: {html_report_path}")
+    if plots:
+        print(f"  📈 Generated {len(plots)} plots in {output_dir}")
     print()
 
     return 0 if failures == 0 else 1
