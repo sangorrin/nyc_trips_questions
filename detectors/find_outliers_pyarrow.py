@@ -564,11 +564,11 @@ def main():
     print(f"  Speed: {config['min_speed_mph']} - {config['max_speed_mph']} mph")
     print(f"  Duration: > 0 and <= {config['max_trip_hours']} hours")
 
-    # Load data (with timing for display)
+    # Execute detection (timing starts here)
     print(f"\n{'='*60}")
-    print("LOADING DATA")
+    print("PROCESSING DATA")
     print("="*60)
-    start_load = time.time()
+    start_processing = time.time()
 
     try:
         # Use core API function
@@ -577,19 +577,8 @@ def main():
         print(f"❌ Error: {e}")
         return 1
 
-    load_time = time.time() - start_load - result.processing_time
-
-    # Get loaded table for memory info (reload schema)
-    schema = pq.read_schema(args.input_file)
-    table = pq.read_table(args.input_file, use_threads=True)
-    mem_mb = table.nbytes / 1024**2
-    print(f"✓ Loaded {len(table):,} rows, {len(table.schema)} columns ({mem_mb:.2f} MB)")
-
-    # Detection already done
-    print(f"\n{'='*60}")
-    print("DETECTING OUTLIERS")
-    print("="*60)
-    print(f"✓ Outlier detection complete ({result.processing_time:.2f}s)")
+    processing_time = time.time() - start_processing
+    print(f"✓ Outlier detection complete ({processing_time:.2f}s)")
 
     # Print results
     stats = result.stats
@@ -626,12 +615,11 @@ def main():
     print_outlier_insights(outliers_sorted)
 
     # Performance summary
-    total_time = load_time + result.processing_time + export_time
+    total_time = processing_time + export_time
     print("\n" + "="*60)
     print("PERFORMANCE SUMMARY")
     print("="*60)
-    print(f"  Data loading:        {load_time:>7.2f}s")
-    print(f"  Outlier detection:   {result.processing_time:>7.2f}s")
+    print(f"  Processing:          {processing_time:>7.2f}s")
     print(f"  Export ({args.output_format}):         {export_time:>7.2f}s")
     print(f"  {'─'*30}")
     print(f"  TOTAL:               {total_time:>7.2f}s")

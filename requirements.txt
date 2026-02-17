@@ -1,0 +1,3 @@
+# Install nyctrips package in editable mode
+# This will also install all dependencies from pyproject.toml
+-e .

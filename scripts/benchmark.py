@@ -36,23 +36,30 @@ import os
 import platform
 import re
 import sys
-import tracemalloc
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 # Import outlier detector implementations
-from detectors.find_outliers_pyarrow import detect_outliers_pyarrow, DEFAULT_CONFIG as PYARROW_CONFIG
-from detectors.find_outliers_duckdb import detect_outliers_duckdb, DEFAULT_CONFIG as DUCKDB_CONFIG
+from detectors.find_outliers_pyarrow import detect_outliers_pyarrow, DEFAULT_CONFIG
+from detectors.find_outliers_duckdb import detect_outliers_duckdb
 
 # Try importing optional dependencies
 try:
     import matplotlib.pyplot as plt
+    import numpy as np
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
     print("Warning: matplotlib not found. Plotting will be skipped.", file=sys.stderr)
+
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+    print("Warning: psutil not found. Memory tracking will be disabled.", file=sys.stderr)
 
 try:
     from tqdm import tqdm
@@ -71,10 +78,6 @@ IMPLEMENTATIONS = {
     "pyarrow": detect_outliers_pyarrow,
     "duckdb": detect_outliers_duckdb,
 }
-
-# Use PyArrow config as default (both implementations use the same config)
-DEFAULT_CONFIG = PYARROW_CONFIG
-
 
 def extract_date_from_filename(filename: str) -> Optional[str]:
     """Extract YYYY-MM date from parquet filename like yellow_tripdata_2013-05.parquet"""
@@ -114,9 +117,9 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
     """
     Run a single benchmark of one implementation on one file.
 
-    Runs TWICE to avoid tracemalloc overhead affecting timing:
-    - Run 1: Measure processing time WITHOUT tracemalloc (accurate timing)
-    - Run 2: Measure memory WITH tracemalloc (accurate memory, timing ignored)
+    Measures both processing time and memory usage:
+    - Time: From the implementation's internal timing
+    - Memory: RSS (Resident Set Size) delta using psutil to capture C/C++ allocations
 
     Returns dict with: impl_name, date, processing_time, peak_memory_mb,
                        outlier_count, success, error
@@ -124,24 +127,37 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
     date_str = extract_date_from_filename(parquet_path.name)
 
     try:
-        # === RUN 1: Measure TIME without tracemalloc overhead ===
-        result = impl_func(str(parquet_path), config)
+        # Get file size
+        file_size_mb = parquet_path.stat().st_size / 1024 / 1024
+
+        # Measure memory if psutil available
+        if HAS_PSUTIL:
+            import gc
+            # Force garbage collection to get baseline memory
+            gc.collect()
+            process = psutil.Process()
+            memory_before = process.memory_info().rss / 1024 / 1024  # MB
+
+            # Run the implementation
+            result = impl_func(str(parquet_path), config)
+
+            # Get peak memory (RSS after processing)
+            memory_after = process.memory_info().rss / 1024 / 1024  # MB
+            peak_memory_mb = max(0, memory_after - memory_before)
+        else:
+            # Run without memory tracking
+            result = impl_func(str(parquet_path), config)
+            peak_memory_mb = 0.0
+
         processing_time = result.processing_time
         outlier_count = result.outlier_count
         stats = result.stats
-
-        # === RUN 2: Measure MEMORY with tracemalloc ===
-        tracemalloc.start()
-        _ = impl_func(str(parquet_path), config)
-        _, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-
-        peak_memory_mb = peak / 1024 / 1024
 
         return {
             "implementation": impl_name,
             "date": date_str,
             "filename": parquet_path.name,
+            "file_size_mb": round(file_size_mb, 2),
             "processing_time": round(processing_time, 4),
             "peak_memory_mb": round(peak_memory_mb, 2),
             "outlier_count": outlier_count,
@@ -152,13 +168,17 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
         }
 
     except Exception as e:
-        # Ensure tracemalloc cleanup on error
-        if tracemalloc.is_tracing():
-            tracemalloc.stop()
+        # Try to get file size even on error
+        try:
+            file_size_mb = parquet_path.stat().st_size / 1024 / 1024
+        except:
+            file_size_mb = None
+
         return {
             "implementation": impl_name,
             "date": date_str,
             "filename": parquet_path.name,
+            "file_size_mb": round(file_size_mb, 2) if file_size_mb else None,
             "processing_time": None,
             "peak_memory_mb": None,
             "outlier_count": None,
@@ -198,11 +218,15 @@ def aggregate_results(raw_results: List[Dict]) -> Dict[str, Any]:
 
         by_impl_date[impl][date].append({
             "time": result["processing_time"],
-            "memory": result["peak_memory_mb"]
+            "memory": result["peak_memory_mb"],
+            "size": result["file_size_mb"],
+            "outliers": result["outlier_count"]
         })
         by_impl[impl].append({
             "time": result["processing_time"],
-            "memory": result["peak_memory_mb"]
+            "memory": result["peak_memory_mb"],
+            "size": result["file_size_mb"],
+            "outliers": result["outlier_count"]
         })
 
     # Calculate means
@@ -216,18 +240,24 @@ def aggregate_results(raw_results: List[Dict]) -> Dict[str, Any]:
         for date, values in dates_data.items():
             times = [v["time"] for v in values]
             memories = [v["memory"] for v in values]
+            sizes = [v["size"] for v in values]
+            outliers = [v["outliers"] for v in values]
             aggregated["by_date"][impl][date] = {
                 "mean_time": round(sum(times) / len(times), 4),
                 "mean_memory": round(sum(memories) / len(memories), 2),
+                "mean_size": round(sum(sizes) / len(sizes), 2),
+                "mean_outliers": round(sum(outliers) / len(outliers), 0),
                 "count": len(values)
             }
 
     for impl, values in by_impl.items():
         times = [v["time"] for v in values]
         memories = [v["memory"] for v in values]
+        sizes = [v["size"] for v in values]
         aggregated["overall_means"][impl] = {
             "mean_time": round(sum(times) / len(times), 4),
             "mean_memory": round(sum(memories) / len(memories), 2),
+            "mean_size": round(sum(sizes) / len(sizes), 2),
             "count": len(values)
         }
 
@@ -236,9 +266,9 @@ def aggregate_results(raw_results: List[Dict]) -> Dict[str, Any]:
 
 def plot_benchmarks(aggregated: Dict, output_dir: Path) -> Dict[str, str]:
     """
-    Generate time and memory comparison plots.
+    Generate comparison plots showing relationships between metrics.
 
-    Returns dict with plot paths: {"time_plot": path, "memory_plot": path}
+    Returns dict with plot paths for all generated visualizations.
     """
     if not HAS_MATPLOTLIB:
         print("Skipping plots: matplotlib not installed")
@@ -246,79 +276,200 @@ def plot_benchmarks(aggregated: Dict, output_dir: Path) -> Dict[str, str]:
 
     by_date = aggregated["by_date"]
 
-    # Get all dates and sort them chronologically
-    all_dates = set()
-    for impl_data in by_date.values():
-        all_dates.update(impl_data.keys())
-    sorted_dates = sorted(all_dates)
-
-    if not sorted_dates:
+    if not by_date:
         print("No data to plot")
         return {}
 
-    # Plot 1: Processing Time by Date
+    # Plot 1: Processing Time vs File Size
     plt.figure(figsize=(14, 7))
 
     for impl_name in sorted(by_date.keys()):
         impl_data = by_date[impl_name]
-        dates = []
+        sizes = []
         times = []
 
-        for date in sorted_dates:
-            if date in impl_data:
-                dates.append(date)
+        for date in sorted(impl_data.keys()):
+            if "mean_size" in impl_data[date]:
+                sizes.append(impl_data[date]["mean_size"])
                 times.append(impl_data[date]["mean_time"])
 
-        if dates:
-            plt.plot(dates, times, 'o-', label=impl_name, linewidth=2, markersize=6)
+        if sizes:
+            plt.scatter(sizes, times, label=impl_name, s=100, alpha=0.7)
+            # Add trend line
+            z = np.polyfit(sizes, times, 1)
+            p = np.poly1d(z)
+            sorted_indices = np.argsort(sizes)
+            plt.plot(np.array(sizes)[sorted_indices], p(np.array(sizes)[sorted_indices]),
+                    '--', alpha=0.5, linewidth=2)
 
-    plt.xlabel('Date (YYYY-MM)', fontsize=12, fontweight='bold')
-    plt.ylabel('Mean Processing Time (seconds)', fontsize=12, fontweight='bold')
-    plt.title('Outlier Detection: Processing Time Comparison\n(Chronological by Parquet File Date)',
+    plt.xlabel('Parquet File Size (MB)', fontsize=12, fontweight='bold')
+    plt.ylabel('Processing Time (seconds)', fontsize=12, fontweight='bold')
+    plt.title('Processing Time vs File Size',
               fontsize=14, fontweight='bold')
     plt.legend(fontsize=10, loc='best')
     plt.grid(True, alpha=0.3, linestyle='--')
-    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
-    time_plot_path = output_dir / "processing_time_by_date.png"
-    plt.savefig(time_plot_path, dpi=150, bbox_inches='tight')
+    time_size_plot = output_dir / "processing_time_vs_size.png"
+    plt.savefig(time_size_plot, dpi=150, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved time plot: {time_plot_path}")
+    print(f"✓ Saved plot: {time_size_plot}")
 
-    # Plot 2: Memory by Date
+    # Plot 2: Memory vs File Size
     plt.figure(figsize=(14, 7))
 
     for impl_name in sorted(by_date.keys()):
         impl_data = by_date[impl_name]
-        dates = []
+        sizes = []
         memories = []
 
-        for date in sorted_dates:
-            if date in impl_data:
-                dates.append(date)
+        for date in sorted(impl_data.keys()):
+            if "mean_size" in impl_data[date]:
+                sizes.append(impl_data[date]["mean_size"])
                 memories.append(impl_data[date]["mean_memory"])
 
-        if dates:
-            plt.plot(dates, memories, 's-', label=impl_name, linewidth=2, markersize=6)
+        if sizes:
+            plt.scatter(sizes, memories, label=impl_name, s=100, alpha=0.7)
+            # Add trend line
+            z = np.polyfit(sizes, memories, 1)
+            p = np.poly1d(z)
+            sorted_indices = np.argsort(sizes)
+            plt.plot(np.array(sizes)[sorted_indices], p(np.array(sizes)[sorted_indices]),
+                    '--', alpha=0.5, linewidth=2)
 
-    plt.xlabel('Date (YYYY-MM)', fontsize=12, fontweight='bold')
-    plt.ylabel('Mean Peak Memory (MB)', fontsize=12, fontweight='bold')
-    plt.title('Outlier Detection: Memory Usage Comparison\n(Chronological by Parquet File Date)',
+    plt.xlabel('Parquet File Size (MB)', fontsize=12, fontweight='bold')
+    plt.ylabel('Peak Memory (MB)', fontsize=12, fontweight='bold')
+    plt.title('Memory Usage vs File Size',
               fontsize=14, fontweight='bold')
     plt.legend(fontsize=10, loc='best')
     plt.grid(True, alpha=0.3, linestyle='--')
-    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
-    memory_plot_path = output_dir / "memory_by_date.png"
-    plt.savefig(memory_plot_path, dpi=150, bbox_inches='tight')
+    memory_size_plot = output_dir / "memory_vs_size.png"
+    plt.savefig(memory_size_plot, dpi=150, bbox_inches='tight')
     plt.close()
-    print(f"✓ Saved memory plot: {memory_plot_path}")
+    print(f"✓ Saved plot: {memory_size_plot}")
+
+    # Plot 3: Processing Time vs Number of Outliers
+    plt.figure(figsize=(14, 7))
+
+    for impl_name in sorted(by_date.keys()):
+        impl_data = by_date[impl_name]
+        outliers = []
+        times = []
+
+        for date in sorted(impl_data.keys()):
+            if "mean_outliers" in impl_data[date]:
+                outliers.append(impl_data[date]["mean_outliers"])
+                times.append(impl_data[date]["mean_time"])
+
+        if outliers:
+            plt.scatter(outliers, times, label=impl_name, s=100, alpha=0.7)
+            # Add trend line if there's variation
+            if len(set(outliers)) > 1:
+                z = np.polyfit(outliers, times, 1)
+                p = np.poly1d(z)
+                sorted_indices = np.argsort(outliers)
+                plt.plot(np.array(outliers)[sorted_indices], p(np.array(outliers)[sorted_indices]),
+                        '--', alpha=0.5, linewidth=2)
+
+    plt.xlabel('Number of Outliers Detected', fontsize=12, fontweight='bold')
+    plt.ylabel('Processing Time (seconds)', fontsize=12, fontweight='bold')
+    plt.title('Processing Time vs Outlier Count',
+              fontsize=14, fontweight='bold')
+    plt.legend(fontsize=10, loc='best')
+    plt.grid(True, alpha=0.3, linestyle='--')
+    plt.tight_layout()
+
+    time_outliers_plot = output_dir / "processing_time_vs_outliers.png"
+    plt.savefig(time_outliers_plot, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"✓ Saved plot: {time_outliers_plot}")
+
+    # Plot 4: Memory vs Number of Outliers
+    plt.figure(figsize=(14, 7))
+
+    for impl_name in sorted(by_date.keys()):
+        impl_data = by_date[impl_name]
+        outliers = []
+        memories = []
+
+        for date in sorted(impl_data.keys()):
+            if "mean_outliers" in impl_data[date]:
+                outliers.append(impl_data[date]["mean_outliers"])
+                memories.append(impl_data[date]["mean_memory"])
+
+        if outliers:
+            plt.scatter(outliers, memories, label=impl_name, s=100, alpha=0.7)
+            # Add trend line if there's variation
+            if len(set(outliers)) > 1:
+                z = np.polyfit(outliers, memories, 1)
+                p = np.poly1d(z)
+                sorted_indices = np.argsort(outliers)
+                plt.plot(np.array(outliers)[sorted_indices], p(np.array(outliers)[sorted_indices]),
+                        '--', alpha=0.5, linewidth=2)
+
+    plt.xlabel('Number of Outliers Detected', fontsize=12, fontweight='bold')
+    plt.ylabel('Peak Memory (MB)', fontsize=12, fontweight='bold')
+    plt.title('Memory Usage vs Outlier Count',
+              fontsize=14, fontweight='bold')
+    plt.legend(fontsize=10, loc='best')
+    plt.grid(True, alpha=0.3, linestyle='--')
+    plt.tight_layout()
+
+    memory_outliers_plot = output_dir / "memory_vs_outliers.png"
+    plt.savefig(memory_outliers_plot, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"✓ Saved plot: {memory_outliers_plot}")
+
+    # Plot 5: Outlier Count vs File Size (correlation analysis)
+    plt.figure(figsize=(14, 7))
+
+    for impl_name in sorted(by_date.keys()):
+        impl_data = by_date[impl_name]
+        sizes = []
+        outliers = []
+
+        for date in sorted(impl_data.keys()):
+            if "mean_size" in impl_data[date] and "mean_outliers" in impl_data[date]:
+                sizes.append(impl_data[date]["mean_size"])
+                outliers.append(impl_data[date]["mean_outliers"])
+
+        if sizes:
+            plt.scatter(sizes, outliers, label=impl_name, s=100, alpha=0.7)
+            # Add trend line to show correlation
+            z = np.polyfit(sizes, outliers, 1)
+            p = np.poly1d(z)
+            sorted_indices = np.argsort(sizes)
+            plt.plot(np.array(sizes)[sorted_indices], p(np.array(sizes)[sorted_indices]),
+                    '--', alpha=0.5, linewidth=2)
+            # Show correlation coefficient
+            correlation = np.corrcoef(sizes, outliers)[0, 1]
+            plt.text(0.02, 0.98 - (0.05 * list(sorted(by_date.keys())).index(impl_name)),
+                    f'{impl_name} correlation: {correlation:.3f}',
+                    transform=plt.gca().transAxes, fontsize=10,
+                    verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
+    plt.xlabel('Parquet File Size (MB)', fontsize=12, fontweight='bold')
+    plt.ylabel('Number of Outliers Detected', fontsize=12, fontweight='bold')
+    plt.title('Outlier Count vs File Size (Proportionality Analysis)',
+              fontsize=14, fontweight='bold')
+    plt.legend(fontsize=10, loc='best')
+    plt.grid(True, alpha=0.3, linestyle='--')
+    plt.tight_layout()
+
+    outliers_size_plot = output_dir / "outliers_vs_size.png"
+    plt.savefig(outliers_size_plot, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"✓ Saved plot: {outliers_size_plot}")
 
     return {
-        "time_plot": str(time_plot_path),
-        "memory_plot": str(memory_plot_path)
+        "time_size_plot": str(time_size_plot),
+        "memory_size_plot": str(memory_size_plot),
+        "time_outliers_plot": str(time_outliers_plot),
+        "memory_outliers_plot": str(memory_outliers_plot),
+        "outliers_size_plot": str(outliers_size_plot)
     }
 
 
@@ -341,8 +492,11 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
             print("Warning: LLM_MODEL or LLM_API_KEY not set. Skipping LLM analysis.")
 
     # Extract just filenames for relative image paths (all files in same directory)
-    time_plot_file = Path(plots.get('time_plot', '')).name if plots.get('time_plot') else ''
-    memory_plot_file = Path(plots.get('memory_plot', '')).name if plots.get('memory_plot') else ''
+    time_size_plot_file = Path(plots.get('time_size_plot', '')).name if plots.get('time_size_plot') else ''
+    memory_size_plot_file = Path(plots.get('memory_size_plot', '')).name if plots.get('memory_size_plot') else ''
+    time_outliers_plot_file = Path(plots.get('time_outliers_plot', '')).name if plots.get('time_outliers_plot') else ''
+    memory_outliers_plot_file = Path(plots.get('memory_outliers_plot', '')).name if plots.get('memory_outliers_plot') else ''
+    outliers_size_plot_file = Path(plots.get('outliers_size_plot', '')).name if plots.get('outliers_size_plot') else ''
 
     # Create base HTML template
     html_template = f"""<!DOCTYPE html>
@@ -479,20 +633,48 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
         <h2>Performance Comparison Plots</h2>
 
         <div class="plot-container">
-            <h3>Processing Time by Date</h3>
-            <img src="{time_plot_file}" alt="Processing Time Comparison">
+            <h3>Processing Time vs File Size</h3>
+            <img src="{time_size_plot_file}" alt="Processing Time vs File Size">
             <p class="plot-description">
-                Mean processing time for outlier detection across implementations. Lower values indicate
-                faster detection of trips violating physics-based constraints (distance, speed, duration).
+                Processing time scales with file size. Scatter plots with trend lines show how each
+                implementation handles larger datasets. Lower values and flatter slopes indicate better scalability.
             </p>
         </div>
 
         <div class="plot-container">
-            <h3>Memory Usage by Date</h3>
-            <img src="{memory_plot_file}" alt="Memory Usage Comparison">
+            <h3>Memory Usage vs File Size</h3>
+            <img src="{memory_size_plot_file}" alt="Memory Usage vs File Size">
             <p class="plot-description">
-                Mean peak memory usage during outlier detection. Lower values indicate more
-                memory-efficient processing.
+                Peak memory consumption relative to input file size. Shows memory efficiency and
+                whether implementations load entire datasets into memory or use streaming approaches.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Processing Time vs Outlier Count</h3>
+            <img src="{time_outliers_plot_file}" alt="Processing Time vs Outlier Count">
+            <p class="plot-description">
+                Relationship between number of outliers detected and processing time. Helps identify
+                if performance degrades when more outliers need to be processed and filtered.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Memory Usage vs Outlier Count</h3>
+            <img src="{memory_outliers_plot_file}" alt="Memory Usage vs Outlier Count">
+            <p class="plot-description">
+                Impact of outlier count on peak memory usage. Shows whether implementations need
+                significant additional memory to store and process outlier results.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Outlier Count vs File Size (Proportionality)</h3>
+            <img src="{outliers_size_plot_file}" alt="Outlier Count vs File Size">
+            <p class="plot-description">
+                Correlation between file size and number of outliers detected. Both implementations
+                should detect identical outliers. Correlation coefficients show whether outlier rates
+                are consistent across different data periods.
             </p>
         </div>
     </div>

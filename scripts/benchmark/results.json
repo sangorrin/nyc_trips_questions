@@ -1,0 +1,2041 @@
+{
+  "benchmark_config": {
+    "timestamp": "2026-02-17T16:19:40.121942",
+    "num_files": 50,
+    "samples": 50,
+    "implementations": [
+      "pyarrow",
+      "duckdb"
+    ],
+    "system": {
+      "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+      "python_version": "3.14.2",
+      "processor": "arm",
+      "cpu_count": 8
+    }
+  },
+  "raw_results": [
+    {
+      "implementation": "pyarrow",
+      "date": "2009-01",
+      "filename": "yellow_tripdata_2009-01.parquet",
+      "file_size_mb": 448.0,
+      "processing_time": 0.4249,
+      "peak_memory_mb": 418.17,
+      "outlier_count": 10537,
+      "total_trips": 14092413,
+      "percentile_threshold": 5.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2009-01",
+      "filename": "yellow_tripdata_2009-01.parquet",
+      "file_size_mb": 448.0,
+      "processing_time": 3.0315,
+      "peak_memory_mb": 383.39,
+      "outlier_count": 10537,
+      "total_trips": 14092413,
+      "percentile_threshold": 5.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2009-05",
+      "filename": "yellow_tripdata_2009-05.parquet",
+      "file_size_mb": 472.38,
+      "processing_time": 0.5367,
+      "peak_memory_mb": 0,
+      "outlier_count": 2947,
+      "total_trips": 14796313,
+      "percentile_threshold": 5.8,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2009-05",
+      "filename": "yellow_tripdata_2009-05.parquet",
+      "file_size_mb": 472.38,
+      "processing_time": 3.3898,
+      "peak_memory_mb": 265.56,
+      "outlier_count": 2947,
+      "total_trips": 14796313,
+      "percentile_threshold": 5.8,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2009-09",
+      "filename": "yellow_tripdata_2009-09.parquet",
+      "file_size_mb": 446.65,
+      "processing_time": 0.4072,
+      "peak_memory_mb": 0,
+      "outlier_count": 3337,
+      "total_trips": 13984887,
+      "percentile_threshold": 5.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2009-09",
+      "filename": "yellow_tripdata_2009-09.parquet",
+      "file_size_mb": 446.65,
+      "processing_time": 3.1119,
+      "peak_memory_mb": 274.0,
+      "outlier_count": 3337,
+      "total_trips": 13984887,
+      "percentile_threshold": 5.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2010-01",
+      "filename": "yellow_tripdata_2010-01.parquet",
+      "file_size_mb": 491.53,
+      "processing_time": 0.5308,
+      "peak_memory_mb": 48.22,
+      "outlier_count": 2751,
+      "total_trips": 14863778,
+      "percentile_threshold": 5.46,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2010-01",
+      "filename": "yellow_tripdata_2010-01.parquet",
+      "file_size_mb": 491.53,
+      "processing_time": 3.415,
+      "peak_memory_mb": 122.22,
+      "outlier_count": 2751,
+      "total_trips": 14863778,
+      "percentile_threshold": 5.46,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2010-05",
+      "filename": "yellow_tripdata_2010-05.parquet",
+      "file_size_mb": 516.69,
+      "processing_time": 0.4756,
+      "peak_memory_mb": 7.61,
+      "outlier_count": 3418,
+      "total_trips": 15481351,
+      "percentile_threshold": 6.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2010-05",
+      "filename": "yellow_tripdata_2010-05.parquet",
+      "file_size_mb": 516.69,
+      "processing_time": 3.5583,
+      "peak_memory_mb": 174.84,
+      "outlier_count": 3418,
+      "total_trips": 15481351,
+      "percentile_threshold": 6.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2010-09",
+      "filename": "yellow_tripdata_2010-09.parquet",
+      "file_size_mb": 484.66,
+      "processing_time": 0.5326,
+      "peak_memory_mb": 10.45,
+      "outlier_count": 511,
+      "total_trips": 15540209,
+      "percentile_threshold": 6.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2010-09",
+      "filename": "yellow_tripdata_2010-09.parquet",
+      "file_size_mb": 484.66,
+      "processing_time": 3.463,
+      "peak_memory_mb": 162.2,
+      "outlier_count": 511,
+      "total_trips": 15540209,
+      "percentile_threshold": 6.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2011-01",
+      "filename": "yellow_tripdata_2011-01.parquet",
+      "file_size_mb": 159.44,
+      "processing_time": 0.2147,
+      "peak_memory_mb": 0.47,
+      "outlier_count": 1245,
+      "total_trips": 13464997,
+      "percentile_threshold": 5.53,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2011-01",
+      "filename": "yellow_tripdata_2011-01.parquet",
+      "file_size_mb": 159.44,
+      "processing_time": 1.2581,
+      "peak_memory_mb": 2.52,
+      "outlier_count": 1245,
+      "total_trips": 13464997,
+      "percentile_threshold": 5.53,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2011-05",
+      "filename": "yellow_tripdata_2011-05.parquet",
+      "file_size_mb": 184.47,
+      "processing_time": 0.2231,
+      "peak_memory_mb": 0.28,
+      "outlier_count": 2546,
+      "total_trips": 15554868,
+      "percentile_threshold": 6.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2011-05",
+      "filename": "yellow_tripdata_2011-05.parquet",
+      "file_size_mb": 184.47,
+      "processing_time": 1.4457,
+      "peak_memory_mb": 124.22,
+      "outlier_count": 2546,
+      "total_trips": 15554868,
+      "percentile_threshold": 6.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2011-09",
+      "filename": "yellow_tripdata_2011-09.parquet",
+      "file_size_mb": 174.99,
+      "processing_time": 0.2369,
+      "peak_memory_mb": 0.23,
+      "outlier_count": 2192,
+      "total_trips": 14626748,
+      "percentile_threshold": 6.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2011-09",
+      "filename": "yellow_tripdata_2011-09.parquet",
+      "file_size_mb": 174.99,
+      "processing_time": 1.4404,
+      "peak_memory_mb": 2.61,
+      "outlier_count": 2192,
+      "total_trips": 14626748,
+      "percentile_threshold": 6.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2012-01",
+      "filename": "yellow_tripdata_2012-01.parquet",
+      "file_size_mb": 159.05,
+      "processing_time": 0.23,
+      "peak_memory_mb": 0.05,
+      "outlier_count": 15980,
+      "total_trips": 13058348,
+      "percentile_threshold": 5.77,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2012-01",
+      "filename": "yellow_tripdata_2012-01.parquet",
+      "file_size_mb": 159.05,
+      "processing_time": 1.3049,
+      "peak_memory_mb": 3.56,
+      "outlier_count": 15980,
+      "total_trips": 13058348,
+      "percentile_threshold": 5.77,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2012-05",
+      "filename": "yellow_tripdata_2012-05.parquet",
+      "file_size_mb": 172.64,
+      "processing_time": 0.2041,
+      "peak_memory_mb": 0.5,
+      "outlier_count": 2676,
+      "total_trips": 13965253,
+      "percentile_threshold": 6.25,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2012-05",
+      "filename": "yellow_tripdata_2012-05.parquet",
+      "file_size_mb": 172.64,
+      "processing_time": 1.3147,
+      "peak_memory_mb": 0.58,
+      "outlier_count": 2676,
+      "total_trips": 13965253,
+      "percentile_threshold": 6.25,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2012-09",
+      "filename": "yellow_tripdata_2012-09.parquet",
+      "file_size_mb": 178.57,
+      "processing_time": 0.2472,
+      "peak_memory_mb": 0.09,
+      "outlier_count": 4126,
+      "total_trips": 14546854,
+      "percentile_threshold": 6.39,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2012-09",
+      "filename": "yellow_tripdata_2012-09.parquet",
+      "file_size_mb": 178.57,
+      "processing_time": 1.346,
+      "peak_memory_mb": 0.89,
+      "outlier_count": 4126,
+      "total_trips": 14546854,
+      "percentile_threshold": 6.39,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2013-01",
+      "filename": "yellow_tripdata_2013-01.parquet",
+      "file_size_mb": 176.18,
+      "processing_time": 0.1763,
+      "peak_memory_mb": 0.23,
+      "outlier_count": 6268,
+      "total_trips": 14776617,
+      "percentile_threshold": 5.81,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2013-01",
+      "filename": "yellow_tripdata_2013-01.parquet",
+      "file_size_mb": 176.18,
+      "processing_time": 1.3939,
+      "peak_memory_mb": 0.67,
+      "outlier_count": 6268,
+      "total_trips": 14776617,
+      "percentile_threshold": 5.81,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2013-05",
+      "filename": "yellow_tripdata_2013-05.parquet",
+      "file_size_mb": 181.85,
+      "processing_time": 0.2469,
+      "peak_memory_mb": 0.08,
+      "outlier_count": 23379,
+      "total_trips": 15285052,
+      "percentile_threshold": 6.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2013-05",
+      "filename": "yellow_tripdata_2013-05.parquet",
+      "file_size_mb": 181.85,
+      "processing_time": 1.4404,
+      "peak_memory_mb": 4.75,
+      "outlier_count": 23379,
+      "total_trips": 15285052,
+      "percentile_threshold": 6.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2013-09",
+      "filename": "yellow_tripdata_2013-09.parquet",
+      "file_size_mb": 168.65,
+      "processing_time": 0.2082,
+      "peak_memory_mb": 0.86,
+      "outlier_count": 2216,
+      "total_trips": 14107693,
+      "percentile_threshold": 6.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2013-09",
+      "filename": "yellow_tripdata_2013-09.parquet",
+      "file_size_mb": 168.65,
+      "processing_time": 1.3157,
+      "peak_memory_mb": 0.31,
+      "outlier_count": 2216,
+      "total_trips": 14107693,
+      "percentile_threshold": 6.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2014-01",
+      "filename": "yellow_tripdata_2014-01.parquet",
+      "file_size_mb": 164.01,
+      "processing_time": 0.1999,
+      "peak_memory_mb": 0.02,
+      "outlier_count": 2110,
+      "total_trips": 13782517,
+      "percentile_threshold": 5.97,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2014-01",
+      "filename": "yellow_tripdata_2014-01.parquet",
+      "file_size_mb": 164.01,
+      "processing_time": 1.2845,
+      "peak_memory_mb": 0.33,
+      "outlier_count": 2110,
+      "total_trips": 13782517,
+      "percentile_threshold": 5.97,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2014-05",
+      "filename": "yellow_tripdata_2014-05.parquet",
+      "file_size_mb": 178.05,
+      "processing_time": 0.1643,
+      "peak_memory_mb": 0.02,
+      "outlier_count": 2352,
+      "total_trips": 14774048,
+      "percentile_threshold": 6.78,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2014-05",
+      "filename": "yellow_tripdata_2014-05.parquet",
+      "file_size_mb": 178.05,
+      "processing_time": 1.3838,
+      "peak_memory_mb": 2.19,
+      "outlier_count": 2352,
+      "total_trips": 14774048,
+      "percentile_threshold": 6.78,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2014-10",
+      "filename": "yellow_tripdata_2014-10.parquet",
+      "file_size_mb": 186.59,
+      "processing_time": 0.1917,
+      "peak_memory_mb": 0.31,
+      "outlier_count": 4170,
+      "total_trips": 14317774,
+      "percentile_threshold": 6.56,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2014-10",
+      "filename": "yellow_tripdata_2014-10.parquet",
+      "file_size_mb": 186.59,
+      "processing_time": 1.3698,
+      "peak_memory_mb": 0.39,
+      "outlier_count": 4170,
+      "total_trips": 14317774,
+      "percentile_threshold": 6.56,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2015-02",
+      "filename": "yellow_tripdata_2015-02.parquet",
+      "file_size_mb": 163.69,
+      "processing_time": 0.1864,
+      "peak_memory_mb": 0.77,
+      "outlier_count": 4164,
+      "total_trips": 12442394,
+      "percentile_threshold": 6.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2015-02",
+      "filename": "yellow_tripdata_2015-02.parquet",
+      "file_size_mb": 163.69,
+      "processing_time": 1.1802,
+      "peak_memory_mb": 0.83,
+      "outlier_count": 4164,
+      "total_trips": 12442394,
+      "percentile_threshold": 6.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2015-06",
+      "filename": "yellow_tripdata_2015-06.parquet",
+      "file_size_mb": 163.8,
+      "processing_time": 0.2048,
+      "peak_memory_mb": 0.17,
+      "outlier_count": 4424,
+      "total_trips": 12324936,
+      "percentile_threshold": 6.85,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2015-06",
+      "filename": "yellow_tripdata_2015-06.parquet",
+      "file_size_mb": 163.8,
+      "processing_time": 1.1818,
+      "peak_memory_mb": 0.47,
+      "outlier_count": 4424,
+      "total_trips": 12324936,
+      "percentile_threshold": 6.85,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2015-10",
+      "filename": "yellow_tripdata_2015-10.parquet",
+      "file_size_mb": 163.17,
+      "processing_time": 0.1634,
+      "peak_memory_mb": 1.05,
+      "outlier_count": 5558,
+      "total_trips": 12307333,
+      "percentile_threshold": 6.94,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2015-10",
+      "filename": "yellow_tripdata_2015-10.parquet",
+      "file_size_mb": 163.17,
+      "processing_time": 1.1813,
+      "peak_memory_mb": 3.38,
+      "outlier_count": 5558,
+      "total_trips": 12307333,
+      "percentile_threshold": 6.94,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2016-02",
+      "filename": "yellow_tripdata_2016-02.parquet",
+      "file_size_mb": 150.79,
+      "processing_time": 0.1137,
+      "peak_memory_mb": 0.31,
+      "outlier_count": 4713,
+      "total_trips": 11375412,
+      "percentile_threshold": 6.4,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2016-02",
+      "filename": "yellow_tripdata_2016-02.parquet",
+      "file_size_mb": 150.79,
+      "processing_time": 1.0793,
+      "peak_memory_mb": 0.47,
+      "outlier_count": 4713,
+      "total_trips": 11375412,
+      "percentile_threshold": 6.4,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2016-06",
+      "filename": "yellow_tripdata_2016-06.parquet",
+      "file_size_mb": 149.05,
+      "processing_time": 0.1246,
+      "peak_memory_mb": 0.09,
+      "outlier_count": 5166,
+      "total_trips": 11131645,
+      "percentile_threshold": 7.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2016-06",
+      "filename": "yellow_tripdata_2016-06.parquet",
+      "file_size_mb": 149.05,
+      "processing_time": 1.0926,
+      "peak_memory_mb": 0.55,
+      "outlier_count": 5166,
+      "total_trips": 11131645,
+      "percentile_threshold": 7.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2016-10",
+      "filename": "yellow_tripdata_2016-10.parquet",
+      "file_size_mb": 145.51,
+      "processing_time": 0.1488,
+      "peak_memory_mb": 0.06,
+      "outlier_count": 5233,
+      "total_trips": 10854626,
+      "percentile_threshold": 6.85,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2016-10",
+      "filename": "yellow_tripdata_2016-10.parquet",
+      "file_size_mb": 145.51,
+      "processing_time": 1.0634,
+      "peak_memory_mb": 2.89,
+      "outlier_count": 5233,
+      "total_trips": 10854626,
+      "percentile_threshold": 6.85,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2017-02",
+      "filename": "yellow_tripdata_2017-02.parquet",
+      "file_size_mb": 121.73,
+      "processing_time": 0.1047,
+      "peak_memory_mb": 0,
+      "outlier_count": 4092,
+      "total_trips": 9169775,
+      "percentile_threshold": 6.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2017-02",
+      "filename": "yellow_tripdata_2017-02.parquet",
+      "file_size_mb": 121.73,
+      "processing_time": 0.8702,
+      "peak_memory_mb": 0.34,
+      "outlier_count": 4092,
+      "total_trips": 9169775,
+      "percentile_threshold": 6.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2017-06",
+      "filename": "yellow_tripdata_2017-06.parquet",
+      "file_size_mb": 129.21,
+      "processing_time": 0.1516,
+      "peak_memory_mb": 0.02,
+      "outlier_count": 4963,
+      "total_trips": 9656993,
+      "percentile_threshold": 6.93,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2017-06",
+      "filename": "yellow_tripdata_2017-06.parquet",
+      "file_size_mb": 129.21,
+      "processing_time": 0.9318,
+      "peak_memory_mb": 0.5,
+      "outlier_count": 4963,
+      "total_trips": 9656993,
+      "percentile_threshold": 6.93,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2017-10",
+      "filename": "yellow_tripdata_2017-10.parquet",
+      "file_size_mb": 130.41,
+      "processing_time": 0.1389,
+      "peak_memory_mb": 0.03,
+      "outlier_count": 5332,
+      "total_trips": 9768672,
+      "percentile_threshold": 6.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2017-10",
+      "filename": "yellow_tripdata_2017-10.parquet",
+      "file_size_mb": 130.41,
+      "processing_time": 0.967,
+      "peak_memory_mb": 0.62,
+      "outlier_count": 5332,
+      "total_trips": 9768672,
+      "percentile_threshold": 6.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2018-02",
+      "filename": "yellow_tripdata_2018-02.parquet",
+      "file_size_mb": 113.92,
+      "processing_time": 0.1132,
+      "peak_memory_mb": 0.44,
+      "outlier_count": 4632,
+      "total_trips": 8492819,
+      "percentile_threshold": 6.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2018-02",
+      "filename": "yellow_tripdata_2018-02.parquet",
+      "file_size_mb": 113.92,
+      "processing_time": 0.8179,
+      "peak_memory_mb": 0.47,
+      "outlier_count": 4632,
+      "total_trips": 8492819,
+      "percentile_threshold": 6.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2018-06",
+      "filename": "yellow_tripdata_2018-06.parquet",
+      "file_size_mb": 118.44,
+      "processing_time": 0.125,
+      "peak_memory_mb": 0.06,
+      "outlier_count": 5649,
+      "total_trips": 8714667,
+      "percentile_threshold": 7.17,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2018-06",
+      "filename": "yellow_tripdata_2018-06.parquet",
+      "file_size_mb": 118.44,
+      "processing_time": 0.8539,
+      "peak_memory_mb": 0.7,
+      "outlier_count": 5649,
+      "total_trips": 8714667,
+      "percentile_threshold": 7.17,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2018-10",
+      "filename": "yellow_tripdata_2018-10.parquet",
+      "file_size_mb": 121.02,
+      "processing_time": 0.0814,
+      "peak_memory_mb": 0.02,
+      "outlier_count": 5860,
+      "total_trips": 8834520,
+      "percentile_threshold": 7.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2018-10",
+      "filename": "yellow_tripdata_2018-10.parquet",
+      "file_size_mb": 121.02,
+      "processing_time": 0.8698,
+      "peak_memory_mb": 0,
+      "outlier_count": 5860,
+      "total_trips": 8834520,
+      "percentile_threshold": 7.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2019-02",
+      "filename": "yellow_tripdata_2019-02.parquet",
+      "file_size_mb": 98.57,
+      "processing_time": 0.0831,
+      "peak_memory_mb": 0,
+      "outlier_count": 4551,
+      "total_trips": 7049370,
+      "percentile_threshold": 6.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2019-02",
+      "filename": "yellow_tripdata_2019-02.parquet",
+      "file_size_mb": 98.57,
+      "processing_time": 0.7114,
+      "peak_memory_mb": 2.72,
+      "outlier_count": 4551,
+      "total_trips": 7049370,
+      "percentile_threshold": 6.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2019-06",
+      "filename": "yellow_tripdata_2019-06.parquet",
+      "file_size_mb": 98.14,
+      "processing_time": 0.0946,
+      "peak_memory_mb": 0,
+      "outlier_count": 4872,
+      "total_trips": 6971560,
+      "percentile_threshold": 7.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2019-06",
+      "filename": "yellow_tripdata_2019-06.parquet",
+      "file_size_mb": 98.14,
+      "processing_time": 0.7163,
+      "peak_memory_mb": 56.7,
+      "outlier_count": 4872,
+      "total_trips": 6971560,
+      "percentile_threshold": 7.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2019-10",
+      "filename": "yellow_tripdata_2019-10.parquet",
+      "file_size_mb": 101.37,
+      "processing_time": 0.0732,
+      "peak_memory_mb": 13.78,
+      "outlier_count": 4436,
+      "total_trips": 7213891,
+      "percentile_threshold": 7.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2019-10",
+      "filename": "yellow_tripdata_2019-10.parquet",
+      "file_size_mb": 101.37,
+      "processing_time": 0.7317,
+      "peak_memory_mb": 0.45,
+      "outlier_count": 4436,
+      "total_trips": 7213891,
+      "percentile_threshold": 7.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2020-02",
+      "filename": "yellow_tripdata_2020-02.parquet",
+      "file_size_mb": 87.87,
+      "processing_time": 0.0657,
+      "peak_memory_mb": 0.03,
+      "outlier_count": 3373,
+      "total_trips": 6299367,
+      "percentile_threshold": 6.35,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2020-02",
+      "filename": "yellow_tripdata_2020-02.parquet",
+      "file_size_mb": 87.87,
+      "processing_time": 0.6511,
+      "peak_memory_mb": 0.48,
+      "outlier_count": 3373,
+      "total_trips": 6299367,
+      "percentile_threshold": 6.35,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2020-07",
+      "filename": "yellow_tripdata_2020-07.parquet",
+      "file_size_mb": 12.77,
+      "processing_time": 0.0101,
+      "peak_memory_mb": 8.05,
+      "outlier_count": 360,
+      "total_trips": 800412,
+      "percentile_threshold": 7.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2020-07",
+      "filename": "yellow_tripdata_2020-07.parquet",
+      "file_size_mb": 12.77,
+      "processing_time": 0.0894,
+      "peak_memory_mb": 0.34,
+      "outlier_count": 360,
+      "total_trips": 800412,
+      "percentile_threshold": 7.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2020-11",
+      "filename": "yellow_tripdata_2020-11.parquet",
+      "file_size_mb": 22.49,
+      "processing_time": 0.0182,
+      "peak_memory_mb": 69.28,
+      "outlier_count": 2934,
+      "total_trips": 1509000,
+      "percentile_threshold": 5.76,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2020-11",
+      "filename": "yellow_tripdata_2020-11.parquet",
+      "file_size_mb": 22.49,
+      "processing_time": 0.1592,
+      "peak_memory_mb": 13.42,
+      "outlier_count": 2934,
+      "total_trips": 1509000,
+      "percentile_threshold": 5.76,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2021-03",
+      "filename": "yellow_tripdata_2021-03.parquet",
+      "file_size_mb": 28.62,
+      "processing_time": 0.0245,
+      "peak_memory_mb": 19.12,
+      "outlier_count": 3869,
+      "total_trips": 1925152,
+      "percentile_threshold": 6.06,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2021-03",
+      "filename": "yellow_tripdata_2021-03.parquet",
+      "file_size_mb": 28.62,
+      "processing_time": 0.2005,
+      "peak_memory_mb": 14.98,
+      "outlier_count": 3869,
+      "total_trips": 1925152,
+      "percentile_threshold": 6.06,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2021-07",
+      "filename": "yellow_tripdata_2021-07.parquet",
+      "file_size_mb": 41.67,
+      "processing_time": 0.0343,
+      "peak_memory_mb": 0.06,
+      "outlier_count": 3534,
+      "total_trips": 2821746,
+      "percentile_threshold": 7.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2021-07",
+      "filename": "yellow_tripdata_2021-07.parquet",
+      "file_size_mb": 41.67,
+      "processing_time": 0.308,
+      "peak_memory_mb": 21.92,
+      "outlier_count": 3534,
+      "total_trips": 2821746,
+      "percentile_threshold": 7.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2021-11",
+      "filename": "yellow_tripdata_2021-11.parquet",
+      "file_size_mb": 50.64,
+      "processing_time": 0.0292,
+      "peak_memory_mb": 0.12,
+      "outlier_count": 2779,
+      "total_trips": 3472949,
+      "percentile_threshold": 8.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2021-11",
+      "filename": "yellow_tripdata_2021-11.parquet",
+      "file_size_mb": 50.64,
+      "processing_time": 0.3719,
+      "peak_memory_mb": 28.66,
+      "outlier_count": 2779,
+      "total_trips": 3472949,
+      "percentile_threshold": 8.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2022-03",
+      "filename": "yellow_tripdata_2022-03.parquet",
+      "file_size_mb": 53.1,
+      "processing_time": 0.0409,
+      "peak_memory_mb": 0.39,
+      "outlier_count": 2361,
+      "total_trips": 3627882,
+      "percentile_threshold": 8.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2022-03",
+      "filename": "yellow_tripdata_2022-03.parquet",
+      "file_size_mb": 53.1,
+      "processing_time": 0.3851,
+      "peak_memory_mb": 0.56,
+      "outlier_count": 2361,
+      "total_trips": 3627882,
+      "percentile_threshold": 8.3,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2022-07",
+      "filename": "yellow_tripdata_2022-07.parquet",
+      "file_size_mb": 47.08,
+      "processing_time": 0.041,
+      "peak_memory_mb": 0,
+      "outlier_count": 2034,
+      "total_trips": 3174394,
+      "percentile_threshold": 9.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2022-07",
+      "filename": "yellow_tripdata_2022-07.parquet",
+      "file_size_mb": 47.08,
+      "processing_time": 0.3429,
+      "peak_memory_mb": 0.16,
+      "outlier_count": 2034,
+      "total_trips": 3174394,
+      "percentile_threshold": 9.22,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2022-11",
+      "filename": "yellow_tripdata_2022-11.parquet",
+      "file_size_mb": 47.79,
+      "processing_time": 0.0432,
+      "peak_memory_mb": 0,
+      "outlier_count": 1639,
+      "total_trips": 3252717,
+      "percentile_threshold": 9.27,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2022-11",
+      "filename": "yellow_tripdata_2022-11.parquet",
+      "file_size_mb": 47.79,
+      "processing_time": 0.3458,
+      "peak_memory_mb": 0.86,
+      "outlier_count": 1639,
+      "total_trips": 3252717,
+      "percentile_threshold": 9.27,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2023-03",
+      "filename": "yellow_tripdata_2023-03.parquet",
+      "file_size_mb": 53.53,
+      "processing_time": 0.0374,
+      "peak_memory_mb": 5.59,
+      "outlier_count": 1189,
+      "total_trips": 3403766,
+      "percentile_threshold": 9.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2023-03",
+      "filename": "yellow_tripdata_2023-03.parquet",
+      "file_size_mb": 53.53,
+      "processing_time": 0.2184,
+      "peak_memory_mb": 2.17,
+      "outlier_count": 1189,
+      "total_trips": 3403766,
+      "percentile_threshold": 9.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2023-07",
+      "filename": "yellow_tripdata_2023-07.parquet",
+      "file_size_mb": 46.12,
+      "processing_time": 0.0327,
+      "peak_memory_mb": 0.19,
+      "outlier_count": 832,
+      "total_trips": 2907108,
+      "percentile_threshold": 9.63,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2023-07",
+      "filename": "yellow_tripdata_2023-07.parquet",
+      "file_size_mb": 46.12,
+      "processing_time": 0.1931,
+      "peak_memory_mb": 0.98,
+      "outlier_count": 832,
+      "total_trips": 2907108,
+      "percentile_threshold": 9.63,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2023-11",
+      "filename": "yellow_tripdata_2023-11.parquet",
+      "file_size_mb": 53.5,
+      "processing_time": 0.0295,
+      "peak_memory_mb": 84.98,
+      "outlier_count": 779,
+      "total_trips": 3339715,
+      "percentile_threshold": 8.91,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2023-11",
+      "filename": "yellow_tripdata_2023-11.parquet",
+      "file_size_mb": 53.5,
+      "processing_time": 0.0769,
+      "peak_memory_mb": 1.58,
+      "outlier_count": 779,
+      "total_trips": 3339715,
+      "percentile_threshold": 8.91,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2024-03",
+      "filename": "yellow_tripdata_2024-03.parquet",
+      "file_size_mb": 57.3,
+      "processing_time": 0.0348,
+      "peak_memory_mb": 8.62,
+      "outlier_count": 727,
+      "total_trips": 3582628,
+      "percentile_threshold": 8.43,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2024-03",
+      "filename": "yellow_tripdata_2024-03.parquet",
+      "file_size_mb": 57.3,
+      "processing_time": 0.0811,
+      "peak_memory_mb": 3.47,
+      "outlier_count": 727,
+      "total_trips": 3582628,
+      "percentile_threshold": 8.43,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2024-07",
+      "filename": "yellow_tripdata_2024-07.parquet",
+      "file_size_mb": 49.88,
+      "processing_time": 0.022,
+      "peak_memory_mb": 1.84,
+      "outlier_count": 661,
+      "total_trips": 3076903,
+      "percentile_threshold": 9.4,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2024-07",
+      "filename": "yellow_tripdata_2024-07.parquet",
+      "file_size_mb": 49.88,
+      "processing_time": 0.076,
+      "peak_memory_mb": 24.25,
+      "outlier_count": 661,
+      "total_trips": 3076903,
+      "percentile_threshold": 9.4,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2024-11",
+      "filename": "yellow_tripdata_2024-11.parquet",
+      "file_size_mb": 57.85,
+      "processing_time": 0.0475,
+      "peak_memory_mb": 1.45,
+      "outlier_count": 837,
+      "total_trips": 3646369,
+      "percentile_threshold": 8.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2024-11",
+      "filename": "yellow_tripdata_2024-11.parquet",
+      "file_size_mb": 57.85,
+      "processing_time": 0.0766,
+      "peak_memory_mb": 2.75,
+      "outlier_count": 837,
+      "total_trips": 3646369,
+      "percentile_threshold": 8.5,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2025-03",
+      "filename": "yellow_tripdata_2025-03.parquet",
+      "file_size_mb": 66.72,
+      "processing_time": 0.0461,
+      "peak_memory_mb": 73.98,
+      "outlier_count": 2199,
+      "total_trips": 4145257,
+      "percentile_threshold": 8.16,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2025-03",
+      "filename": "yellow_tripdata_2025-03.parquet",
+      "file_size_mb": 66.72,
+      "processing_time": 0.0789,
+      "peak_memory_mb": 2.0,
+      "outlier_count": 2199,
+      "total_trips": 4145257,
+      "percentile_threshold": 8.16,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "pyarrow",
+      "date": "2025-07",
+      "filename": "yellow_tripdata_2025-07.parquet",
+      "file_size_mb": 63.84,
+      "processing_time": 0.0413,
+      "peak_memory_mb": 38.42,
+      "outlier_count": 3582,
+      "total_trips": 3898963,
+      "percentile_threshold": 8.9,
+      "success": true,
+      "error": null
+    },
+    {
+      "implementation": "duckdb",
+      "date": "2025-07",
+      "filename": "yellow_tripdata_2025-07.parquet",
+      "file_size_mb": 63.84,
+      "processing_time": 0.0804,
+      "peak_memory_mb": 18.0,
+      "outlier_count": 3582,
+      "total_trips": 3898963,
+      "percentile_threshold": 8.9,
+      "success": true,
+      "error": null
+    }
+  ],
+  "aggregated": {
+    "by_date": {
+      "pyarrow": {
+        "2009-01": {
+          "mean_time": 0.4249,
+          "mean_memory": 418.17,
+          "mean_size": 448.0,
+          "mean_outliers": 10537.0,
+          "count": 1
+        },
+        "2009-05": {
+          "mean_time": 0.5367,
+          "mean_memory": 0.0,
+          "mean_size": 472.38,
+          "mean_outliers": 2947.0,
+          "count": 1
+        },
+        "2009-09": {
+          "mean_time": 0.4072,
+          "mean_memory": 0.0,
+          "mean_size": 446.65,
+          "mean_outliers": 3337.0,
+          "count": 1
+        },
+        "2010-01": {
+          "mean_time": 0.5308,
+          "mean_memory": 48.22,
+          "mean_size": 491.53,
+          "mean_outliers": 2751.0,
+          "count": 1
+        },
+        "2010-05": {
+          "mean_time": 0.4756,
+          "mean_memory": 7.61,
+          "mean_size": 516.69,
+          "mean_outliers": 3418.0,
+          "count": 1
+        },
+        "2010-09": {
+          "mean_time": 0.5326,
+          "mean_memory": 10.45,
+          "mean_size": 484.66,
+          "mean_outliers": 511.0,
+          "count": 1
+        },
+        "2011-01": {
+          "mean_time": 0.2147,
+          "mean_memory": 0.47,
+          "mean_size": 159.44,
+          "mean_outliers": 1245.0,
+          "count": 1
+        },
+        "2011-05": {
+          "mean_time": 0.2231,
+          "mean_memory": 0.28,
+          "mean_size": 184.47,
+          "mean_outliers": 2546.0,
+          "count": 1
+        },
+        "2011-09": {
+          "mean_time": 0.2369,
+          "mean_memory": 0.23,
+          "mean_size": 174.99,
+          "mean_outliers": 2192.0,
+          "count": 1
+        },
+        "2012-01": {
+          "mean_time": 0.23,
+          "mean_memory": 0.05,
+          "mean_size": 159.05,
+          "mean_outliers": 15980.0,
+          "count": 1
+        },
+        "2012-05": {
+          "mean_time": 0.2041,
+          "mean_memory": 0.5,
+          "mean_size": 172.64,
+          "mean_outliers": 2676.0,
+          "count": 1
+        },
+        "2012-09": {
+          "mean_time": 0.2472,
+          "mean_memory": 0.09,
+          "mean_size": 178.57,
+          "mean_outliers": 4126.0,
+          "count": 1
+        },
+        "2013-01": {
+          "mean_time": 0.1763,
+          "mean_memory": 0.23,
+          "mean_size": 176.18,
+          "mean_outliers": 6268.0,
+          "count": 1
+        },
+        "2013-05": {
+          "mean_time": 0.2469,
+          "mean_memory": 0.08,
+          "mean_size": 181.85,
+          "mean_outliers": 23379.0,
+          "count": 1
+        },
+        "2013-09": {
+          "mean_time": 0.2082,
+          "mean_memory": 0.86,
+          "mean_size": 168.65,
+          "mean_outliers": 2216.0,
+          "count": 1
+        },
+        "2014-01": {
+          "mean_time": 0.1999,
+          "mean_memory": 0.02,
+          "mean_size": 164.01,
+          "mean_outliers": 2110.0,
+          "count": 1
+        },
+        "2014-05": {
+          "mean_time": 0.1643,
+          "mean_memory": 0.02,
+          "mean_size": 178.05,
+          "mean_outliers": 2352.0,
+          "count": 1
+        },
+        "2014-10": {
+          "mean_time": 0.1917,
+          "mean_memory": 0.31,
+          "mean_size": 186.59,
+          "mean_outliers": 4170.0,
+          "count": 1
+        },
+        "2015-02": {
+          "mean_time": 0.1864,
+          "mean_memory": 0.77,
+          "mean_size": 163.69,
+          "mean_outliers": 4164.0,
+          "count": 1
+        },
+        "2015-06": {
+          "mean_time": 0.2048,
+          "mean_memory": 0.17,
+          "mean_size": 163.8,
+          "mean_outliers": 4424.0,
+          "count": 1
+        },
+        "2015-10": {
+          "mean_time": 0.1634,
+          "mean_memory": 1.05,
+          "mean_size": 163.17,
+          "mean_outliers": 5558.0,
+          "count": 1
+        },
+        "2016-02": {
+          "mean_time": 0.1137,
+          "mean_memory": 0.31,
+          "mean_size": 150.79,
+          "mean_outliers": 4713.0,
+          "count": 1
+        },
+        "2016-06": {
+          "mean_time": 0.1246,
+          "mean_memory": 0.09,
+          "mean_size": 149.05,
+          "mean_outliers": 5166.0,
+          "count": 1
+        },
+        "2016-10": {
+          "mean_time": 0.1488,
+          "mean_memory": 0.06,
+          "mean_size": 145.51,
+          "mean_outliers": 5233.0,
+          "count": 1
+        },
+        "2017-02": {
+          "mean_time": 0.1047,
+          "mean_memory": 0.0,
+          "mean_size": 121.73,
+          "mean_outliers": 4092.0,
+          "count": 1
+        },
+        "2017-06": {
+          "mean_time": 0.1516,
+          "mean_memory": 0.02,
+          "mean_size": 129.21,
+          "mean_outliers": 4963.0,
+          "count": 1
+        },
+        "2017-10": {
+          "mean_time": 0.1389,
+          "mean_memory": 0.03,
+          "mean_size": 130.41,
+          "mean_outliers": 5332.0,
+          "count": 1
+        },
+        "2018-02": {
+          "mean_time": 0.1132,
+          "mean_memory": 0.44,
+          "mean_size": 113.92,
+          "mean_outliers": 4632.0,
+          "count": 1
+        },
+        "2018-06": {
+          "mean_time": 0.125,
+          "mean_memory": 0.06,
+          "mean_size": 118.44,
+          "mean_outliers": 5649.0,
+          "count": 1
+        },
+        "2018-10": {
+          "mean_time": 0.0814,
+          "mean_memory": 0.02,
+          "mean_size": 121.02,
+          "mean_outliers": 5860.0,
+          "count": 1
+        },
+        "2019-02": {
+          "mean_time": 0.0831,
+          "mean_memory": 0.0,
+          "mean_size": 98.57,
+          "mean_outliers": 4551.0,
+          "count": 1
+        },
+        "2019-06": {
+          "mean_time": 0.0946,
+          "mean_memory": 0.0,
+          "mean_size": 98.14,
+          "mean_outliers": 4872.0,
+          "count": 1
+        },
+        "2019-10": {
+          "mean_time": 0.0732,
+          "mean_memory": 13.78,
+          "mean_size": 101.37,
+          "mean_outliers": 4436.0,
+          "count": 1
+        },
+        "2020-02": {
+          "mean_time": 0.0657,
+          "mean_memory": 0.03,
+          "mean_size": 87.87,
+          "mean_outliers": 3373.0,
+          "count": 1
+        },
+        "2020-07": {
+          "mean_time": 0.0101,
+          "mean_memory": 8.05,
+          "mean_size": 12.77,
+          "mean_outliers": 360.0,
+          "count": 1
+        },
+        "2020-11": {
+          "mean_time": 0.0182,
+          "mean_memory": 69.28,
+          "mean_size": 22.49,
+          "mean_outliers": 2934.0,
+          "count": 1
+        },
+        "2021-03": {
+          "mean_time": 0.0245,
+          "mean_memory": 19.12,
+          "mean_size": 28.62,
+          "mean_outliers": 3869.0,
+          "count": 1
+        },
+        "2021-07": {
+          "mean_time": 0.0343,
+          "mean_memory": 0.06,
+          "mean_size": 41.67,
+          "mean_outliers": 3534.0,
+          "count": 1
+        },
+        "2021-11": {
+          "mean_time": 0.0292,
+          "mean_memory": 0.12,
+          "mean_size": 50.64,
+          "mean_outliers": 2779.0,
+          "count": 1
+        },
+        "2022-03": {
+          "mean_time": 0.0409,
+          "mean_memory": 0.39,
+          "mean_size": 53.1,
+          "mean_outliers": 2361.0,
+          "count": 1
+        },
+        "2022-07": {
+          "mean_time": 0.041,
+          "mean_memory": 0.0,
+          "mean_size": 47.08,
+          "mean_outliers": 2034.0,
+          "count": 1
+        },
+        "2022-11": {
+          "mean_time": 0.0432,
+          "mean_memory": 0.0,
+          "mean_size": 47.79,
+          "mean_outliers": 1639.0,
+          "count": 1
+        },
+        "2023-03": {
+          "mean_time": 0.0374,
+          "mean_memory": 5.59,
+          "mean_size": 53.53,
+          "mean_outliers": 1189.0,
+          "count": 1
+        },
+        "2023-07": {
+          "mean_time": 0.0327,
+          "mean_memory": 0.19,
+          "mean_size": 46.12,
+          "mean_outliers": 832.0,
+          "count": 1
+        },
+        "2023-11": {
+          "mean_time": 0.0295,
+          "mean_memory": 84.98,
+          "mean_size": 53.5,
+          "mean_outliers": 779.0,
+          "count": 1
+        },
+        "2024-03": {
+          "mean_time": 0.0348,
+          "mean_memory": 8.62,
+          "mean_size": 57.3,
+          "mean_outliers": 727.0,
+          "count": 1
+        },
+        "2024-07": {
+          "mean_time": 0.022,
+          "mean_memory": 1.84,
+          "mean_size": 49.88,
+          "mean_outliers": 661.0,
+          "count": 1
+        },
+        "2024-11": {
+          "mean_time": 0.0475,
+          "mean_memory": 1.45,
+          "mean_size": 57.85,
+          "mean_outliers": 837.0,
+          "count": 1
+        },
+        "2025-03": {
+          "mean_time": 0.0461,
+          "mean_memory": 73.98,
+          "mean_size": 66.72,
+          "mean_outliers": 2199.0,
+          "count": 1
+        },
+        "2025-07": {
+          "mean_time": 0.0413,
+          "mean_memory": 38.42,
+          "mean_size": 63.84,
+          "mean_outliers": 3582.0,
+          "count": 1
+        }
+      },
+      "duckdb": {
+        "2009-01": {
+          "mean_time": 3.0315,
+          "mean_memory": 383.39,
+          "mean_size": 448.0,
+          "mean_outliers": 10537.0,
+          "count": 1
+        },
+        "2009-05": {
+          "mean_time": 3.3898,
+          "mean_memory": 265.56,
+          "mean_size": 472.38,
+          "mean_outliers": 2947.0,
+          "count": 1
+        },
+        "2009-09": {
+          "mean_time": 3.1119,
+          "mean_memory": 274.0,
+          "mean_size": 446.65,
+          "mean_outliers": 3337.0,
+          "count": 1
+        },
+        "2010-01": {
+          "mean_time": 3.415,
+          "mean_memory": 122.22,
+          "mean_size": 491.53,
+          "mean_outliers": 2751.0,
+          "count": 1
+        },
+        "2010-05": {
+          "mean_time": 3.5583,
+          "mean_memory": 174.84,
+          "mean_size": 516.69,
+          "mean_outliers": 3418.0,
+          "count": 1
+        },
+        "2010-09": {
+          "mean_time": 3.463,
+          "mean_memory": 162.2,
+          "mean_size": 484.66,
+          "mean_outliers": 511.0,
+          "count": 1
+        },
+        "2011-01": {
+          "mean_time": 1.2581,
+          "mean_memory": 2.52,
+          "mean_size": 159.44,
+          "mean_outliers": 1245.0,
+          "count": 1
+        },
+        "2011-05": {
+          "mean_time": 1.4457,
+          "mean_memory": 124.22,
+          "mean_size": 184.47,
+          "mean_outliers": 2546.0,
+          "count": 1
+        },
+        "2011-09": {
+          "mean_time": 1.4404,
+          "mean_memory": 2.61,
+          "mean_size": 174.99,
+          "mean_outliers": 2192.0,
+          "count": 1
+        },
+        "2012-01": {
+          "mean_time": 1.3049,
+          "mean_memory": 3.56,
+          "mean_size": 159.05,
+          "mean_outliers": 15980.0,
+          "count": 1
+        },
+        "2012-05": {
+          "mean_time": 1.3147,
+          "mean_memory": 0.58,
+          "mean_size": 172.64,
+          "mean_outliers": 2676.0,
+          "count": 1
+        },
+        "2012-09": {
+          "mean_time": 1.346,
+          "mean_memory": 0.89,
+          "mean_size": 178.57,
+          "mean_outliers": 4126.0,
+          "count": 1
+        },
+        "2013-01": {
+          "mean_time": 1.3939,
+          "mean_memory": 0.67,
+          "mean_size": 176.18,
+          "mean_outliers": 6268.0,
+          "count": 1
+        },
+        "2013-05": {
+          "mean_time": 1.4404,
+          "mean_memory": 4.75,
+          "mean_size": 181.85,
+          "mean_outliers": 23379.0,
+          "count": 1
+        },
+        "2013-09": {
+          "mean_time": 1.3157,
+          "mean_memory": 0.31,
+          "mean_size": 168.65,
+          "mean_outliers": 2216.0,
+          "count": 1
+        },
+        "2014-01": {
+          "mean_time": 1.2845,
+          "mean_memory": 0.33,
+          "mean_size": 164.01,
+          "mean_outliers": 2110.0,
+          "count": 1
+        },
+        "2014-05": {
+          "mean_time": 1.3838,
+          "mean_memory": 2.19,
+          "mean_size": 178.05,
+          "mean_outliers": 2352.0,
+          "count": 1
+        },
+        "2014-10": {
+          "mean_time": 1.3698,
+          "mean_memory": 0.39,
+          "mean_size": 186.59,
+          "mean_outliers": 4170.0,
+          "count": 1
+        },
+        "2015-02": {
+          "mean_time": 1.1802,
+          "mean_memory": 0.83,
+          "mean_size": 163.69,
+          "mean_outliers": 4164.0,
+          "count": 1
+        },
+        "2015-06": {
+          "mean_time": 1.1818,
+          "mean_memory": 0.47,
+          "mean_size": 163.8,
+          "mean_outliers": 4424.0,
+          "count": 1
+        },
+        "2015-10": {
+          "mean_time": 1.1813,
+          "mean_memory": 3.38,
+          "mean_size": 163.17,
+          "mean_outliers": 5558.0,
+          "count": 1
+        },
+        "2016-02": {
+          "mean_time": 1.0793,
+          "mean_memory": 0.47,
+          "mean_size": 150.79,
+          "mean_outliers": 4713.0,
+          "count": 1
+        },
+        "2016-06": {
+          "mean_time": 1.0926,
+          "mean_memory": 0.55,
+          "mean_size": 149.05,
+          "mean_outliers": 5166.0,
+          "count": 1
+        },
+        "2016-10": {
+          "mean_time": 1.0634,
+          "mean_memory": 2.89,
+          "mean_size": 145.51,
+          "mean_outliers": 5233.0,
+          "count": 1
+        },
+        "2017-02": {
+          "mean_time": 0.8702,
+          "mean_memory": 0.34,
+          "mean_size": 121.73,
+          "mean_outliers": 4092.0,
+          "count": 1
+        },
+        "2017-06": {
+          "mean_time": 0.9318,
+          "mean_memory": 0.5,
+          "mean_size": 129.21,
+          "mean_outliers": 4963.0,
+          "count": 1
+        },
+        "2017-10": {
+          "mean_time": 0.967,
+          "mean_memory": 0.62,
+          "mean_size": 130.41,
+          "mean_outliers": 5332.0,
+          "count": 1
+        },
+        "2018-02": {
+          "mean_time": 0.8179,
+          "mean_memory": 0.47,
+          "mean_size": 113.92,
+          "mean_outliers": 4632.0,
+          "count": 1
+        },
+        "2018-06": {
+          "mean_time": 0.8539,
+          "mean_memory": 0.7,
+          "mean_size": 118.44,
+          "mean_outliers": 5649.0,
+          "count": 1
+        },
+        "2018-10": {
+          "mean_time": 0.8698,
+          "mean_memory": 0.0,
+          "mean_size": 121.02,
+          "mean_outliers": 5860.0,
+          "count": 1
+        },
+        "2019-02": {
+          "mean_time": 0.7114,
+          "mean_memory": 2.72,
+          "mean_size": 98.57,
+          "mean_outliers": 4551.0,
+          "count": 1
+        },
+        "2019-06": {
+          "mean_time": 0.7163,
+          "mean_memory": 56.7,
+          "mean_size": 98.14,
+          "mean_outliers": 4872.0,
+          "count": 1
+        },
+        "2019-10": {
+          "mean_time": 0.7317,
+          "mean_memory": 0.45,
+          "mean_size": 101.37,
+          "mean_outliers": 4436.0,
+          "count": 1
+        },
+        "2020-02": {
+          "mean_time": 0.6511,
+          "mean_memory": 0.48,
+          "mean_size": 87.87,
+          "mean_outliers": 3373.0,
+          "count": 1
+        },
+        "2020-07": {
+          "mean_time": 0.0894,
+          "mean_memory": 0.34,
+          "mean_size": 12.77,
+          "mean_outliers": 360.0,
+          "count": 1
+        },
+        "2020-11": {
+          "mean_time": 0.1592,
+          "mean_memory": 13.42,
+          "mean_size": 22.49,
+          "mean_outliers": 2934.0,
+          "count": 1
+        },
+        "2021-03": {
+          "mean_time": 0.2005,
+          "mean_memory": 14.98,
+          "mean_size": 28.62,
+          "mean_outliers": 3869.0,
+          "count": 1
+        },
+        "2021-07": {
+          "mean_time": 0.308,
+          "mean_memory": 21.92,
+          "mean_size": 41.67,
+          "mean_outliers": 3534.0,
+          "count": 1
+        },
+        "2021-11": {
+          "mean_time": 0.3719,
+          "mean_memory": 28.66,
+          "mean_size": 50.64,
+          "mean_outliers": 2779.0,
+          "count": 1
+        },
+        "2022-03": {
+          "mean_time": 0.3851,
+          "mean_memory": 0.56,
+          "mean_size": 53.1,
+          "mean_outliers": 2361.0,
+          "count": 1
+        },
+        "2022-07": {
+          "mean_time": 0.3429,
+          "mean_memory": 0.16,
+          "mean_size": 47.08,
+          "mean_outliers": 2034.0,
+          "count": 1
+        },
+        "2022-11": {
+          "mean_time": 0.3458,
+          "mean_memory": 0.86,
+          "mean_size": 47.79,
+          "mean_outliers": 1639.0,
+          "count": 1
+        },
+        "2023-03": {
+          "mean_time": 0.2184,
+          "mean_memory": 2.17,
+          "mean_size": 53.53,
+          "mean_outliers": 1189.0,
+          "count": 1
+        },
+        "2023-07": {
+          "mean_time": 0.1931,
+          "mean_memory": 0.98,
+          "mean_size": 46.12,
+          "mean_outliers": 832.0,
+          "count": 1
+        },
+        "2023-11": {
+          "mean_time": 0.0769,
+          "mean_memory": 1.58,
+          "mean_size": 53.5,
+          "mean_outliers": 779.0,
+          "count": 1
+        },
+        "2024-03": {
+          "mean_time": 0.0811,
+          "mean_memory": 3.47,
+          "mean_size": 57.3,
+          "mean_outliers": 727.0,
+          "count": 1
+        },
+        "2024-07": {
+          "mean_time": 0.076,
+          "mean_memory": 24.25,
+          "mean_size": 49.88,
+          "mean_outliers": 661.0,
+          "count": 1
+        },
+        "2024-11": {
+          "mean_time": 0.0766,
+          "mean_memory": 2.75,
+          "mean_size": 57.85,
+          "mean_outliers": 837.0,
+          "count": 1
+        },
+        "2025-03": {
+          "mean_time": 0.0789,
+          "mean_memory": 2.0,
+          "mean_size": 66.72,
+          "mean_outliers": 2199.0,
+          "count": 1
+        },
+        "2025-07": {
+          "mean_time": 0.0804,
+          "mean_memory": 18.0,
+          "mean_size": 63.84,
+          "mean_outliers": 3582.0,
+          "count": 1
+        }
+      }
+    },
+    "overall_means": {
+      "pyarrow": {
+        "mean_time": 0.1591,
+        "mean_memory": 16.33,
+        "mean_size": 155.08,
+        "count": 50
+      },
+      "duckdb": {
+        "mean_time": 1.085,
+        "mean_memory": 34.66,
+        "mean_size": 155.08,
+        "count": 50
+      }
+    }
+  }
+}

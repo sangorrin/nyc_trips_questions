@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Taxi Outlier Detection Benchmark Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .metadata {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metadata-item {
+            margin: 8px 0;
+        }
+        .metadata-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .plots-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .plot-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .plot-description {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
+        }
+        .insights-box {
+            background: #fff9e6;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .insights-box h3 {
+            margin-top: 0;
+            color: #f39c12;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-table th {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .summary-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .summary-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .no-llm-note {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #777;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚕 NYC Taxi Outlier Detection Benchmark Report</h1>
+
+    <div class="metadata">
+        <h2>Benchmark Configuration</h2>
+        <div class="metadata-item">
+            <span class="metadata-label">Date:</span> 2026-02-17T16:19:40.121942
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Files Tested:</span> 50
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Implementations:</span> pyarrow, duckdb
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">System:</span> {'platform': 'macOS-26.2-arm64-arm-64bit-Mach-O', 'python_version': '3.14.2', 'processor': 'arm', 'cpu_count': 8}
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Task:</span> Detect outlier taxi trips violating physics-based constraints
+        </div>
+    </div>
+
+    <div class="plots-section">
+        <h2>Performance Comparison Plots</h2>
+
+        <div class="plot-container">
+            <h3>Processing Time vs File Size</h3>
+            <img src="processing_time_vs_size.png" alt="Processing Time vs File Size">
+            <p class="plot-description">
+                Processing time scales with file size. Scatter plots with trend lines show how each
+                implementation handles larger datasets. Lower values and flatter slopes indicate better scalability.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Memory Usage vs File Size</h3>
+            <img src="memory_vs_size.png" alt="Memory Usage vs File Size">
+            <p class="plot-description">
+                Peak memory consumption relative to input file size. Shows memory efficiency and
+                whether implementations load entire datasets into memory or use streaming approaches.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Processing Time vs Outlier Count</h3>
+            <img src="processing_time_vs_outliers.png" alt="Processing Time vs Outlier Count">
+            <p class="plot-description">
+                Relationship between number of outliers detected and processing time. Helps identify
+                if performance degrades when more outliers need to be processed and filtered.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Memory Usage vs Outlier Count</h3>
+            <img src="memory_vs_outliers.png" alt="Memory Usage vs Outlier Count">
+            <p class="plot-description">
+                Impact of outlier count on peak memory usage. Shows whether implementations need
+                significant additional memory to store and process outlier results.
+            </p>
+        </div>
+
+        <div class="plot-container">
+            <h3>Outlier Count vs File Size (Proportionality)</h3>
+            <img src="outliers_vs_size.png" alt="Outlier Count vs File Size">
+            <p class="plot-description">
+                Correlation between file size and number of outliers detected. Both implementations
+                should detect identical outliers. Correlation coefficients show whether outlier rates
+                are consistent across different data periods.
+            </p>
+        </div>
+    </div>
+
+    <div class="plots-section">
+        <h2>Overall Performance Summary</h2>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Implementation</th>
+                    <th>Mean Time (s)</th>
+                    <th>Mean Memory (MB)</th>
+                    <th>Files Tested</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>duckdb</strong></td>
+                    <td>1.0850</td>
+                    <td>34.66</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td><strong>pyarrow</strong></td>
+                    <td>0.1591</td>
+                    <td>16.33</td>
+                    <td>50</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="llm-insights">
+        <div class="insights-box">
+            <h3>🤖 AI-Generated Performance Insights</h3>
+            <div class="performance-analysis">
+<h3>Performance Analysis: NYC Taxi Outlier Detection Benchmark</h3>
+
+<h4>Executive Summary</h4>
+<p>PyArrow demonstrates <strong>6.8x faster execution</strong> than DuckDB for outlier detection tasks, with mean processing times of 0.159 seconds vs 1.085 seconds. However, this speed advantage comes with higher memory variability and occasional spikes. Both implementations produce identical outlier counts, confirming analytical correctness.</p>
+
+<h4>Performance Comparison</h4>
+<p><strong>Speed Advantage: PyArrow Dominates</strong></p>
+<ul>
+<li>PyArrow is consistently faster across all file sizes and time periods</li>
+<li>Performance gap is most pronounced on larger files (2009-2010): 7-8x faster</li>
+<li>Even on smaller modern files, PyArrow maintains 2-3x speed advantage</li>
+<li>Zero-copy columnar operations eliminate data serialization overhead</li>
+</ul>
+
+<p><strong>Memory Usage: Mixed Results</strong></p>
+<ul>
+<li>DuckDB shows more predictable memory patterns (mean: 34.66 MB)</li>
+<li>PyArrow has lower average memory (16.33 MB) but with significant spikes</li>
+<li>Notable PyArrow memory spikes: 418MB (2009-01), 85MB (2023-11), 74MB (2025-03)</li>
+<li>DuckDB's SQL engine provides better memory governance</li>
+</ul>
+
+<h4>Implementation Characteristics</h4>
+<p><strong>Why PyArrow Excels for This Task:</strong></p>
+<ul>
+<li><strong>Zero-Copy Operations:</strong> Direct manipulation of Arrow arrays without data conversion</li>
+<li><strong>Columnar Efficiency:</strong> Perfect match for percentile calculations and filtering operations</li>
+<li><strong>Minimal Overhead:</strong> Two-phase approach (percentile → filter) with native Arrow compute functions</li>
+<li><strong>Parquet Integration:</strong> Seamless reading and writing without format conversions</li>
+</ul>
+
+<p><strong>DuckDB's SQL Engine Overhead:</strong></p>
+<ul>
+<li><strong>Query Planning:</strong> CTE processing and optimization adds latency</li>
+<li><strong>Vectorization Setup:</strong> Engine initialization costs dominate on smaller datasets</li>
+<li><strong>Memory Management:</strong> More conservative but slower memory allocation</li>
+<li><strong>Format Conversion:</strong> Internal representation changes between Parquet and SQL execution</li>
+</ul>
+
+<h4>Trends & Patterns</h4>
+<p><strong>Chronological Evolution (2009-2025):</strong></p>
+<ul>
+<li><strong>File Size Impact:</strong> Larger early files (2009-2010: ~450-500MB) show biggest PyArrow advantages</li>
+<li><strong>COVID Effect:</strong> 2020-2021 files are much smaller due to reduced taxi usage</li>
+<li><strong>Performance Convergence:</strong> Gap narrows on recent smaller files, but PyArrow maintains lead</li>
+<li><strong>Outlier Patterns:</strong> 2012-2013 show highest outlier rates (anomalous data periods)</li>
+</ul>
+
+<p><strong>File Size Correlation:</strong></p>
+<ul>
+<li>Performance advantage scales with file size for PyArrow</li>
+<li>DuckDB's fixed overhead becomes more apparent on smaller files</li>
+<li>Sweet spot for DuckDB appears to be medium-sized files (100-200MB)</li>
+</ul>
+
+<h4>Practical Recommendations</h4>
+<p><strong>Maximum Speed → PyArrow</strong></p>
+<ul>
+<li>Best choice for real-time outlier detection pipelines</li>
+<li>Ideal for batch processing large historical datasets</li>
+<li>Recommended when sub-second response times are critical</li>
+</ul>
+
+<p><strong>Minimum Memory Usage → DuckDB</strong></p>
+<ul>
+<li>More predictable memory footprint for resource-constrained environments</li>
+<li>Better for concurrent outlier detection jobs</li>
+<li>Safer choice when memory spikes could cause system issues</li>
+</ul>
+
+<p><strong>Production Outlier Detection Systems → PyArrow</strong></p>
+<ul>
+<li>Speed advantage outweighs memory variability in most production scenarios</li>
+<li>Zero-copy operations reduce CPU load and improve throughput</li>
+<li>Better integration with Arrow-based data pipelines</li>
+<li>Consider memory monitoring and limits to handle occasional spikes</li>
+</ul>
+
+<p><strong>Interactive Data Quality Analysis → DuckDB</strong></p>
+<ul>
+<li>SQL interface more accessible for data analysts</li>
+<li>Easier to modify detection logic and add complex conditions</li>
+<li>Better for ad-hoc analysis and exploration</li>
+<li>More predictable resource usage for Jupyter notebook environments</li>
+</ul>
+
+<h4>Key Insights for Outlier Detection</h4>
+<p>The small output size (typically <1% of input) strongly favors PyArrow's approach. Since outlier detection requires full data scans for percentile calculation but produces minimal output, PyArrow's zero-copy operations and efficient filtering provide maximum benefit with minimal overhead. DuckDB's SQL engine sophistication becomes less valuable when the primary operations are straightforward statistical calculations and filtering.</p>
+</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Generated by NYC Taxi Outlier Detection Benchmark Suite | 2026-02-17 16:20:10</p>
+    </footer>
+</body>
+</html>
