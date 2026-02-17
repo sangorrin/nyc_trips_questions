@@ -194,6 +194,8 @@ def detect_outliers_duckdb(parquet_path: str, config: Dict) -> DetectionResult:
         ValueError: If required columns not found
         Exception: For file I/O or processing errors
     """
+    start_time = time.time()
+
     # Create DuckDB connection
     conn = duckdb.connect(':memory:')
 
@@ -217,8 +219,6 @@ def detect_outliers_duckdb(parquet_path: str, config: Dict) -> DetectionResult:
 
     # Build SQL query for outlier detection
     # Use actual column names in the query
-    start_time = time.time()
-
     query = f"""
     WITH top_percentile AS (
         SELECT *,
@@ -241,7 +241,6 @@ def detect_outliers_duckdb(parquet_path: str, config: Dict) -> DetectionResult:
     result = conn.execute(query)
     # Convert RecordBatchReader to PyArrow Table
     outliers_table = result.fetch_arrow_table()
-    processing_time = time.time() - start_time
 
     # Count trips in top percentile for statistics
     num_top_percentile = conn.execute(f"""
@@ -265,6 +264,8 @@ def detect_outliers_duckdb(parquet_path: str, config: Dict) -> DetectionResult:
     }
 
     conn.close()
+
+    processing_time = time.time() - start_time
 
     return DetectionResult(
         outliers_table=outliers_table,

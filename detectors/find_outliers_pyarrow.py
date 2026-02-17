@@ -418,20 +418,21 @@ def detect_outliers_pyarrow(parquet_path: str, config: Dict) -> DetectionResult:
         ValueError: If required columns not found
         Exception: For file I/O or processing errors
     """
+    start_time = time.time()
     # Load and normalize data
     schema = pq.read_schema(parquet_path)
     col_map = resolve_column_names(schema)
     table = pq.read_table(parquet_path, use_threads=True)
     table = normalize_table_columns(table, col_map)
 
-    # Detect outliers (timed)
-    start_time = time.time()
+    # Detect outliers
     outliers, stats = find_outliers(table, config)
-    processing_time = time.time() - start_time
 
     # Sort by distance descending (most extreme first)
     sorted_indices = pc.sort_indices(outliers, sort_keys=[('trip_distance', 'descending')])
     outliers_sorted = pc.take(outliers, sorted_indices)
+
+    processing_time = time.time() - start_time
 
     return DetectionResult(
         outliers_table=outliers_sorted,

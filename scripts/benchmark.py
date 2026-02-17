@@ -42,6 +42,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 # Import outlier detector implementations
 from detectors.find_outliers_pyarrow import detect_outliers_pyarrow, DEFAULT_CONFIG
+from detectors.find_outliers_pyarrow_optimized import detect_outliers_pyarrow_optimized
 from detectors.find_outliers_duckdb import detect_outliers_duckdb
 
 # Try importing optional dependencies
@@ -75,6 +76,7 @@ except ImportError:
 # Configuration
 IMPLEMENTATIONS = {
     "pyarrow": detect_outliers_pyarrow,
+    "pyarrow_optimized": detect_outliers_pyarrow_optimized,
     "duckdb": detect_outliers_duckdb,
 }
 
@@ -845,7 +847,7 @@ def main():
         epilog=__doc__
     )
     parser.add_argument(
-        "--parquets-dir",
+        "--parquets-path",
         type=Path,
         default=Path("parquets"),
         help="Directory containing parquet files (default: parquets)"
@@ -898,20 +900,20 @@ def main():
     html_report_path = output_dir / "benchmark_report.html"
 
     # Validate parquets directory
-    if not args.parquets_dir.exists():
-        print(f"Error: Parquets directory not found: {args.parquets_dir}", file=sys.stderr)
+    if not args.parquets_path.exists():
+        print(f"Error: Parquets directory not found: {args.parquets_path}", file=sys.stderr)
         return 1
 
     # Get parquet files
-    print(f"Scanning for parquet files in {args.parquets_dir}...")
-    parquet_files = get_parquet_files(args.parquets_dir, args.samples)
+    print(f"Scanning for parquet files in {args.parquets_path}...")
+    parquet_files = get_parquet_files(args.parquets_path, args.samples)
 
     if not parquet_files:
         print("Error: No parquet files found", file=sys.stderr)
         return 1
 
     print(f"Found {len(parquet_files)} files to benchmark")
-    if args.samples and args.samples < len(list(args.parquets_dir.glob("*.parquet"))):
+    if args.samples and args.samples < len(list(args.parquets_path.glob("*.parquet"))):
         print(f"  (sampled {args.samples} files evenly across date range)")
 
     # Filter implementations
