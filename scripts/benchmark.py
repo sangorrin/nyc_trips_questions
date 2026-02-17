@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Comprehensive Performance Benchmark for NYC Taxi Trip Analysis
+Comprehensive Performance Benchmark for NYC Taxi Outlier Detection
 
-Benchmarks all 7 implementations across all (or sampled) parquet files.
-Tracks processing time and memory usage, generates comparison plots,
-and optionally produces LLM-analyzed HTML reports.
+Benchmarks PyArrow and DuckDB outlier detection implementations across
+parquet files. Tracks processing time and memory usage, generates comparison
+plots, and optionally produces LLM-analyzed HTML reports.
 
 Usage:
     # Run on all parquet files
@@ -19,14 +19,9 @@ Usage:
     # Run without LLM analysis (even if env vars set)
     python scripts/benchmark.py --no-llm
 
-All implementations tested:
-    - baseline (2-pass, most accurate)
-    - baseline_threads (2-pass multithreading)
-    - baseline_process (2-pass multiprocessing)
-    - onepass (1-pass with early percentile)
-    - onepass_streaming (1-pass producer-consumer streaming)
-    - pyarrow (2-pass zero-copy Arrow operations)
-    - duckdb (SQL-based, typically fastest)
+Implementations tested:
+    - pyarrow: Zero-copy Arrow operations with percentile filtering
+    - duckdb: SQL-based analytical engine with single-query detection
 
 Outputs:
     - results.json: Raw and aggregated benchmark data
@@ -47,15 +42,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-# Import all 7 implementations
-from nyctrips.list_trips import analyze_trips as baseline_analyze
-from nyctrips.list_trips_1pass import analyze_trips as onepass_analyze
-from nyctrips.list_trips_1pass_streaming import analyze_trips as streaming_analyze
-from nyctrips.list_trips_duckdb import analyze_trips as duckdb_analyze
-from nyctrips.list_trips_pyarrow import analyze_trips as pyarrow_analyze
-from nyctrips.list_trips_parallel_process import analyze_trips as parallel_process_analyze
-from nyctrips.list_trips_parallel_threads import analyze_trips as parallel_threads_analyze
-from nyctrips.trip_filters import DEFAULT_CONFIG
+# Import outlier detector implementations
+from detectors.find_outliers_pyarrow import detect_outliers_pyarrow, DEFAULT_CONFIG as PYARROW_CONFIG
+from detectors.find_outliers_duckdb import detect_outliers_duckdb, DEFAULT_CONFIG as DUCKDB_CONFIG
 
 # Try importing optional dependencies
 try:
@@ -79,15 +68,12 @@ except ImportError:
 
 # Configuration
 IMPLEMENTATIONS = {
-    "baseline": baseline_analyze,
-    "baseline_threads": parallel_threads_analyze,
-    "baseline_process": parallel_process_analyze,
-    "onepass": onepass_analyze,
-    "onepass_streaming": streaming_analyze,
-    "pyarrow": pyarrow_analyze,
-    "duckdb": duckdb_analyze,
+    "pyarrow": detect_outliers_pyarrow,
+    "duckdb": detect_outliers_duckdb,
 }
 
+# Use PyArrow config as default (both implementations use the same config)
+DEFAULT_CONFIG = PYARROW_CONFIG
 
 
 def extract_date_from_filename(filename: str) -> Optional[str]:
@@ -133,24 +119,20 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
     - Run 2: Measure memory WITH tracemalloc (accurate memory, timing ignored)
 
     Returns dict with: impl_name, date, processing_time, peak_memory_mb,
-                       trips_count, success, error
+                       outlier_count, success, error
     """
     date_str = extract_date_from_filename(parquet_path.name)
 
     try:
-        # Prepare config with worker count for parallel implementations
-        run_config = config.copy()
-        if 'baseline_process' in impl_name or 'baseline_threads' in impl_name:
-            run_config['num_workers'] = os.cpu_count()
-
         # === RUN 1: Measure TIME without tracemalloc overhead ===
-        result_time = impl_func(str(parquet_path), run_config)
-        processing_time = result_time.processing_time
-        trips_count = len(result_time.df_full) if hasattr(result_time, 'df_full') else 0
+        result = impl_func(str(parquet_path), config)
+        processing_time = result.processing_time
+        outlier_count = result.outlier_count
+        stats = result.stats
 
         # === RUN 2: Measure MEMORY with tracemalloc ===
         tracemalloc.start()
-        _ = impl_func(str(parquet_path), run_config)
+        _ = impl_func(str(parquet_path), config)
         _, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
@@ -162,7 +144,9 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
             "filename": parquet_path.name,
             "processing_time": round(processing_time, 4),
             "peak_memory_mb": round(peak_memory_mb, 2),
-            "trips_count": trips_count,
+            "outlier_count": outlier_count,
+            "total_trips": stats['total_rows'],
+            "percentile_threshold": round(stats['percentile_threshold'], 2),
             "success": True,
             "error": None
         }
@@ -177,12 +161,12 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
             "filename": parquet_path.name,
             "processing_time": None,
             "peak_memory_mb": None,
-            "trips_count": None,
+            "outlier_count": None,
+            "total_trips": None,
+            "percentile_threshold": None,
             "success": False,
             "error": f"{type(e).__name__}: {str(e)}"
         }
-
-
 
 
 def aggregate_results(raw_results: List[Dict]) -> Dict[str, Any]:
@@ -290,7 +274,7 @@ def plot_benchmarks(aggregated: Dict, output_dir: Path) -> Dict[str, str]:
 
     plt.xlabel('Date (YYYY-MM)', fontsize=12, fontweight='bold')
     plt.ylabel('Mean Processing Time (seconds)', fontsize=12, fontweight='bold')
-    plt.title('Processing Time Comparison Across All Implementations\n(Chronological by Parquet File Date)',
+    plt.title('Outlier Detection: Processing Time Comparison\n(Chronological by Parquet File Date)',
               fontsize=14, fontweight='bold')
     plt.legend(fontsize=10, loc='best')
     plt.grid(True, alpha=0.3, linestyle='--')
@@ -320,7 +304,7 @@ def plot_benchmarks(aggregated: Dict, output_dir: Path) -> Dict[str, str]:
 
     plt.xlabel('Date (YYYY-MM)', fontsize=12, fontweight='bold')
     plt.ylabel('Mean Peak Memory (MB)', fontsize=12, fontweight='bold')
-    plt.title('Memory Usage Comparison Across All Implementations\n(Chronological by Parquet File Date)',
+    plt.title('Outlier Detection: Memory Usage Comparison\n(Chronological by Parquet File Date)',
               fontsize=14, fontweight='bold')
     plt.legend(fontsize=10, loc='best')
     plt.grid(True, alpha=0.3, linestyle='--')
@@ -366,7 +350,7 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Taxi Benchmark Report</title>
+    <title>NYC Taxi Outlier Detection Benchmark Report</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -377,7 +361,7 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
         }}
         h1 {{
             color: #2c3e50;
-            border-bottom: 3px solid #3498db;
+            border-bottom: 3px solid #e74c3c;
             padding-bottom: 10px;
         }}
         h2 {{
@@ -440,7 +424,7 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .summary-table th {{
-            background-color: #3498db;
+            background-color: #e74c3c;
             color: white;
             padding: 12px;
             text-align: left;
@@ -470,7 +454,7 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
     </style>
 </head>
 <body>
-    <h1>🚕 NYC Taxi Performance Benchmark Report</h1>
+    <h1>🚕 NYC Taxi Outlier Detection Benchmark Report</h1>
 
     <div class="metadata">
         <h2>Benchmark Configuration</h2>
@@ -486,6 +470,9 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
         <div class="metadata-item">
             <span class="metadata-label">System:</span> {results_data['benchmark_config']['system']}
         </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Task:</span> Detect outlier taxi trips violating physics-based constraints
+        </div>
     </div>
 
     <div class="plots-section">
@@ -495,8 +482,8 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
             <h3>Processing Time by Date</h3>
             <img src="{time_plot_file}" alt="Processing Time Comparison">
             <p class="plot-description">
-                This plot shows mean processing time across all implementations over the chronological
-                date range of parquet files. Lower values indicate faster processing.
+                Mean processing time for outlier detection across implementations. Lower values indicate
+                faster detection of trips violating physics-based constraints (distance, speed, duration).
             </p>
         </div>
 
@@ -504,8 +491,8 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
             <h3>Memory Usage by Date</h3>
             <img src="{memory_plot_file}" alt="Memory Usage Comparison">
             <p class="plot-description">
-                This plot shows mean peak memory usage across all implementations. Lower values
-                indicate more memory-efficient processing.
+                Mean peak memory usage during outlier detection. Lower values indicate more
+                memory-efficient processing.
             </p>
         </div>
     </div>
@@ -548,106 +535,74 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
             # Prepare prompt
             results_json = json.dumps(results_data, indent=2)
 
-            llm_prompt = f"""You are a performance analysis expert reviewing benchmark results for a NYC taxi data processing system.
+            llm_prompt = f"""You are a performance analysis expert reviewing benchmark results for a NYC taxi outlier DETECTION system.
 
-## Fundamental Approaches: 2-Pass vs 1-Pass
+## Task Overview
 
-**Two-Pass Approach:**
-- **Pass 1**: Read entire dataset to calculate the 90th percentile distance threshold
-- **Pass 2**: Read dataset again to filter trips above threshold and apply additional filters
-- **Pros**: Most accurate results, straightforward logic, easier to maintain
-- **Cons**: Reads data twice, slower overall processing time
-- **Used by**: baseline, pyarrow, baseline_process, baseline_threads, duckdb
+This benchmark compares two implementations for DETECTING outlier taxi trips:
 
-**One-Pass Approach:**
-- **Single Pass**: Calculate percentile first (quick scan), then stream/filter data in one pass
-- **Pros**: ~40-50% faster, reads data only once, lower I/O overhead
-- **Cons**: Small accuracy trade-off (~1-2% difference in trip counts vs baseline)
-- **Used by**: onepass, onepass_streaming
+**PyArrow Implementation:**
+- Uses zero-copy columnar operations
+- Two-phase approach: calculate 90th percentile, then filter and validate
+- Native Parquet support with compute functions (pc.quantile, pc.filter)
+- Memory-efficient with direct Arrow operations
 
-## Implementation Technical Details
+**DuckDB Implementation:**
+- SQL-based analytical engine
+- Single SQL query with CTEs (Common Table Expressions)
+- Percentile calculation and filtering in one query
+- Vectorized execution with native Parquet scanning
 
-Each implementation uses a different approach to process NYC taxi parquet files:
+## Outlier Detection Strategy (Both Implementations)
 
-1. **baseline** - Two-pass algorithm using Pandas (Reference Implementation)
-   - Pass 1: Calculate 90th percentile distance threshold
-   - Pass 2: Filter trips above threshold and apply additional filters
-   - Library: Pandas (DataFrame operations)
-   - Approach: 2-pass
-   - Strengths: Most accurate, well-tested reference implementation
-   - Tradeoffs: Slower due to two full passes over data
+**Phase 1:** Calculate 90th percentile of trip distances
+**Phase 2:** Within top 10% of trips, find outliers violating ANY constraint:
+- Distance: < 0.1 miles OR > 800 miles
+- Duration: ≤ 0 hours OR > 10 hours
+- Speed: < 2.5 mph OR > 80 mph
 
-2. **onepass** - Single-pass algorithm with early percentile calculation
-   - Calculates percentile first, then filters in one pass
-   - Library: Pandas
-   - Approach: 1-pass
-   - Strengths: ~40-50% faster than baseline, still accurate
-   - Tradeoffs: Small accuracy difference (~1-2%) vs baseline
+**Output:** Parquet files containing ONLY the detected outliers (not removed trips)
 
-3. **onepass_streaming** - Producer-consumer streaming pattern based on 1-pass
-   - Streams data through queue between reader and processor threads
-   - Overlapped I/O and processing with single-pass filtering
-   - Library: Pandas + threading (queue-based)
-   - Approach: 1-pass
-   - Strengths: Best for cold cache scenarios, hides I/O latency
-   - Tradeoffs: More complex architecture, thread coordination overhead
+## Key Differences from Trip Removal
 
-4. **duckdb** - SQL-based query engine
-   - Uses DuckDB's embedded analytical database
-   - Single SQL query with native parquet reading (internally 2-pass for percentile)
-   - Library: DuckDB (columnar execution)
-   - Approach: 2-pass (internal)
-   - Strengths: Often fastest overall, highly optimized query execution
-   - Tradeoffs: Higher memory usage, different result ordering
-
-5. **pyarrow** - Zero-copy Arrow operations
-   - Uses PyArrow's native compute functions
-   - Zero-copy filtering and column selection
-   - Library: PyArrow (Apache Arrow)
-   - Approach: 2-pass
-   - Strengths: Most memory-efficient, no data copying
-   - Tradeoffs: Limited by Arrow API capabilities, still needs two passes
-
-6. **baseline_process** - Multiprocessing parallelism based on baseline
-   - Uses ProcessPoolExecutor with {results_data['benchmark_config']['system']['cpu_count']} workers
-   - True parallel processing (bypasses Python GIL)
-   - Library: multiprocessing + Pandas
-   - Approach: 2-pass (parallelized)
-   - Strengths: Can utilize multiple CPU cores fully
-   - Tradeoffs: Process spawning overhead, memory duplication per worker
-
-7. **baseline_threads** - Multithreading parallelism based on baseline
-   - Uses ThreadPoolExecutor with {results_data['benchmark_config']['system']['cpu_count']} workers
-   - Thread-based parallelism (limited by Python GIL)
-   - Library: threading + Pandas
-   - Approach: 2-pass (parallelized)
-   - Strengths: Lower overhead than multiprocessing
-   - Tradeoffs: GIL contention limits actual parallelism for CPU-bound work
+This is an OUTLIER DETECTION benchmark, not trip removal:
+- **Goal:** Find problematic trips for inspection/analysis
+- **Output:** Small set of outliers (typically < 1% of data)
+- **Metric:** Number of outliers detected, not trips kept
+- **Use case:** Data quality monitoring, anomaly investigation
 
 ## Analysis Task
 
-Analyze the benchmark results below and provide insightful commentary in HTML format. Your analysis should be placed inside a div and include:
+Analyze the benchmark results below and provide insightful commentary in HTML format. Your analysis should include:
 
-1. **Key Performance Insights**: Which implementations perform best for time and memory? Are there clear winners? Reference the technical characteristics above to explain WHY certain implementations perform better.
+1. **Performance Comparison**: Which implementation is faster? By how much? Are there trade-offs in memory usage?
 
-2. **Algorithm Tradeoffs**: Discuss speed vs memory tradeoffs observed across implementations. Explain how architectural choices (single-pass vs two-pass, zero-copy, parallelism, SQL engine) affect performance.
+2. **Implementation Characteristics**:
+   - Why might PyArrow or DuckDB perform better for this specific task?
+   - How do zero-copy operations vs SQL engine affect performance?
+   - Does the small output size (only outliers) favor one approach?
 
-3. **Trends & Patterns**: Any patterns across the chronological date range? Do newer data files behave differently? Does file size affect relative performance?
+3. **Trends & Patterns**:
+   - Any patterns across the chronological date range?
+   - Do newer/older data files behave differently?
+   - Does file size affect relative performance?
 
-4. **Recommendations**: Which implementation would you recommend for:
-   - Maximum speed (consider both cold and hot cache scenarios)
+4. **Practical Recommendations**: Which implementation would you recommend for:
+   - Maximum speed
    - Minimum memory usage
-   - Best balance of speed and memory
-   - Production use (considering reliability, maintainability, and performance)
+   - Production outlier detection systems
+   - Interactive data quality analysis
 
-Consider the technical details when making recommendations. For example, streaming might excel with cold cache, pyarrow for memory constraints, duckdb for raw speed, etc.
-
-Format your response as clean HTML (divs, paragraphs, lists, etc.) suitable for insertion into the page. Make it visually appealing and informative. Use <h3> for section headers and <h4> for subsections if needed.
+Consider that outlier detection has different characteristics than bulk processing:
+- Output is tiny (< 1% of input)
+- Percentile calculation requires full scan
+- Detection logic is relatively simple (WHERE clause filters)
 
 Benchmark Results:
 {results_json}
 
 Provide ONLY the HTML content (no markdown, no code fences), starting with your analysis div.
+Format as clean HTML with <h3> for sections, <h4> for subsections, <p> for paragraphs, and <ul>/<li> for lists.
 """
 
             # Handle model naming
@@ -694,7 +649,7 @@ Provide ONLY the HTML content (no markdown, no code fences), starting with your 
     html_template += """    </div>
 
     <footer>
-        <p>Generated by NYC Taxi Benchmark Suite | {timestamp}</p>
+        <p>Generated by NYC Taxi Outlier Detection Benchmark Suite | {timestamp}</p>
     </footer>
 </body>
 </html>
@@ -708,12 +663,10 @@ Provide ONLY the HTML content (no markdown, no code fences), starting with your 
     return str(output_path)
 
 
-
-
 def main():
     """Main benchmark orchestration."""
     parser = argparse.ArgumentParser(
-        description="Comprehensive performance benchmark for NYC taxi implementations",
+        description="Benchmark outlier detection implementations for NYC taxi data",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__
     )

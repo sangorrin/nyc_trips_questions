@@ -1,43 +1,32 @@
 #!/usr/bin/env python3
 """
-NYC Taxi Trip Analysis - Outlier Detection
+NYC Taxi Trip Analysis - Outlier Detection (DuckDB Implementation)
 
 PURPOSE:
 --------
-Detect outlier taxi trips that violate physics-based constraints. These outliers
-likely represent data quality issues, meter errors, or data corruption.
+Detect outlier taxi trips using DuckDB's SQL-based analytical engine.
+Provides the same outlier detection as PyArrow but using SQL queries.
 
 OUTLIER DETECTION STRATEGY:
 ---------------------------
-Two-phase approach to efficiently identify outliers:
+Two-phase SQL-based approach:
 
 Phase 1: Percentile-based filtering (default: 90th percentile)
-  - Calculate percentile threshold on raw trip distance data
+  - Calculate percentile threshold using PERCENTILE_CONT
   - Focus analysis on trips above threshold (top 10% by distance)
-  - Rationale: Outliers more likely in long-distance trips
 
-Phase 2: Physics-based validation
+Phase 2: Physics-based validation via WHERE clause
   A trip in the top percentile is classified as an outlier if it violates ANY constraint:
-
   1. Distance bounds: < 0.1 miles OR > 800 miles
-     - Rationale: Below 0.1 mi suggests stationary meter; above 800 mi exceeds
-       theoretical maximum (10 hours @ 80 mph)
-
   2. Duration bounds: <= 0 hours OR > 10 hours
-     - Rationale: Negative/zero duration indicates timestamp errors; above 10 hours
-       exceeds NYC TLC regulatory limits (fatigued driving prevention rules:
-       https://www.nyc.gov/site/tlc/about/fatigued-driving-prevention-frequently-asked-questions.page)
-
   3. Speed bounds: < 2.5 mph OR > 80 mph
-     - Rationale: Below 2.5 mph suggests parked meter running; above 80 mph indicates
-       data corruption or calculation errors
 
-WHY PYARROW:
-------------
-- Columnar processing: Efficient memory usage and computation
-- Native Parquet support: Fast I/O without format conversion
-- Single dependency: Minimal installation complexity
-- Compute functions: Built-in vectorized operations (pc.quantile, pc.invert, pc.filter)
+WHY DUCKDB:
+-----------
+- SQL interface: Familiar query language for data analysts
+- Optimized engine: Vectorized execution for analytical workloads
+- Native Parquet: Direct scanning without full data load
+- Single query: Percentile calculation and filtering in one pass
 
 INPUT:
 ------
@@ -51,16 +40,16 @@ OUTPUT:
 - All original columns PLUS computed columns (duration, speed)
 """
 
+import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
-import pyarrow.compute as pc
 import pyarrow.csv as pa_csv
 import argparse
 import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 
 # ============================================================================
@@ -88,20 +77,32 @@ class DetectionResult:
 
 
 # ============================================================================
+# CONFIGURATION & DEFAULTS
+# ============================================================================
+
+DEFAULT_CONFIG = {
+    'min_distance_miles': 0.1,      # ~2 NYC blocks minimum
+    'max_distance_miles': 800,      # Theoretical max: 10h @ 80mph
+    'min_speed_mph': 2.5,           # Below this suggests parked with meter running
+    'max_speed_mph': 80,            # Realistic highway speed limit
+    'max_trip_hours': 10,           # NYC TLC fatigued driving prevention rules
+    'percentile': 0.90              # Focus on top 10% of trips by distance
+}
+
+
+# ============================================================================
 # COLUMN NAME RESOLUTION
 # ============================================================================
 
-def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
+def resolve_column_names(conn: duckdb.DuckDBPyConnection, parquet_path: str) -> Dict[str, str]:
     """
     Resolve column name variations across different years (2009-2025).
 
-    Known variations:
-    - distance: 'trip_distance', 'Trip_Distance'
-    - pickup: 'tpep_pickup_datetime', 'Trip_Pickup_DateTime', 'pickup_datetime'
-    - dropoff: 'tpep_dropoff_datetime', 'Trip_Dropoff_DateTime', 'dropoff_datetime'
+    Uses DuckDB's DESCRIBE to introspect parquet schema.
 
     Args:
-        schema: PyArrow schema of the table
+        conn: DuckDB connection
+        parquet_path: Path to parquet file
 
     Returns:
         Dict mapping logical names to actual column names
@@ -109,8 +110,12 @@ def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
     Raises:
         ValueError: If required columns not found
     """
+    # Get column names from parquet file
+    result = conn.execute(f"DESCRIBE SELECT * FROM parquet_scan('{parquet_path}')").fetchall()
+    col_names = [row[0] for row in result]
+    col_names_lower = {col.lower(): col for col in col_names}
+
     col_map = {}
-    col_names_lower = {col.lower(): col for col in schema.names}
 
     # Distance column
     for variant in ['trip_distance', 'Trip_Distance']:
@@ -119,7 +124,7 @@ def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
             break
     else:
         # Fallback: any column containing '_distance'
-        for col in schema.names:
+        for col in col_names:
             if '_distance' in col.lower():
                 col_map['distance'] = col
                 break
@@ -131,7 +136,7 @@ def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
             break
     else:
         # Fallback: any column containing 'pickup'
-        for col in schema.names:
+        for col in col_names:
             if 'pickup' in col.lower() and 'datetime' in col.lower():
                 col_map['pickup'] = col
                 break
@@ -143,7 +148,7 @@ def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
             break
     else:
         # Fallback: any column containing 'dropoff'
-        for col in schema.names:
+        for col in col_names:
             if 'dropoff' in col.lower() and 'datetime' in col.lower():
                 col_map['dropoff'] = col
                 break
@@ -157,254 +162,25 @@ def resolve_column_names(schema: pa.Schema) -> Dict[str, str]:
     if missing:
         raise ValueError(
             f"Missing required columns: {missing}\n"
-            f"Available columns: {schema.names}\n"
+            f"Available columns: {col_names}\n"
             f"Expected: trip_distance, tpep_pickup_datetime, tpep_dropoff_datetime (or variations)"
         )
 
     return col_map
 
 
-def normalize_table_columns(table: pa.Table, col_map: Dict[str, str]) -> pa.Table:
-    """
-    Rename columns to standard names for consistent access.
-
-    Args:
-        table: Input table with original column names
-        col_map: Mapping from logical to actual names
-
-    Returns:
-        Table with renamed columns
-    """
-    # Build rename mapping (original_name -> standard_name)
-    rename_map = {
-        col_map['distance']: 'trip_distance',
-        col_map['pickup']: 'tpep_pickup_datetime',
-        col_map['dropoff']: 'tpep_dropoff_datetime'
-    }
-
-    # Apply renames
-    new_names = [rename_map.get(name, name) for name in table.column_names]
-    return table.rename_columns(new_names)
-
-
-# ============================================================================
-# CONFIGURATION & DEFAULTS
-# ============================================================================
-
-DEFAULT_CONFIG = {
-    'min_distance_miles': 0.1,      # ~2 NYC blocks minimum
-    'max_distance_miles': 800,      # Theoretical max: 10h @ 80mph
-    'min_speed_mph': 2.5,           # Below this suggests parked with meter running
-    'max_speed_mph': 80,            # Realistic highway speed limit
-    'max_trip_hours': 10,           # NYC TLC fatigued driving prevention rules: https://www.nyc.gov/site/tlc/about/fatigued-driving-prevention-frequently-asked-questions.page
-    'percentile': 0.90              # Focus on top 10% of trips by distance
-}
-
-
-# ============================================================================
-# OUTLIER DETECTION
-# ============================================================================
-
-def find_outliers(table: pa.Table, config: Dict) -> Tuple[pa.Table, Dict]:
-    """
-    Detect outlier trips in the top percentile that violate physics-based constraints.
-
-    Strategy:
-    1. Calculate percentile threshold on raw distance data
-    2. Filter to trips above percentile (top N%, likely outlier candidates)
-    3. Within that subset, find trips that FAIL physics validation (actual outliers)
-
-    Args:
-        table: Input table with normalized column names
-        config: Configuration dict with threshold values
-
-    Returns:
-        tuple: (outlier_table, statistics_dict)
-    """
-    total_rows = len(table)
-
-    # Step 1: Calculate percentile threshold on raw data
-    distance = table['trip_distance']
-    percentile_threshold = pc.quantile(distance, q=config['percentile'])[0].as_py()
-
-    # Step 2: Filter to trips above percentile (top N%)
-    percentile_mask = pc.greater(distance, percentile_threshold)
-    table_top_percentile = pc.filter(table, percentile_mask)
-    num_top_percentile = len(table_top_percentile)
-
-    # Step 3: Within top percentile, find outliers (physics validation failures)
-    # Extract columns from top percentile subset
-    distance = table_top_percentile['trip_distance']
-    pickup = table_top_percentile['tpep_pickup_datetime']
-    dropoff = table_top_percentile['tpep_dropoff_datetime']
-
-    # Handle datetime columns that might be stored as strings (older parquet files)
-    if pa.types.is_string(pickup.type) or pa.types.is_large_string(pickup.type):
-        pickup = pc.strptime(pickup, format='%Y-%m-%d %H:%M:%S', unit='us')
-    if pa.types.is_string(dropoff.type) or pa.types.is_large_string(dropoff.type):
-        dropoff = pc.strptime(dropoff, format='%Y-%m-%d %H:%M:%S', unit='us')
-
-    # Calculate trip duration in hours using Arrow compute
-    # 1. Subtract timestamps to get duration
-    duration = pc.subtract(dropoff, pickup)
-
-    # 2. Cast duration to int64 to get microseconds
-    duration_us = pc.cast(duration, pa.int64())
-
-    # 3. Convert to hours (cast to float, then divide)
-    duration_hours = pc.divide(
-        pc.cast(duration_us, pa.float64()),
-        3600.0 * 1_000_000.0  # microseconds to hours
-    )
-
-    # Calculate average speed
-    avg_speed_mph = pc.divide(distance, duration_hours)
-
-    # Add computed columns to top percentile table
-    table_top_percentile = table_top_percentile.append_column('trip_duration_hours', duration_hours)
-    table_top_percentile = table_top_percentile.append_column('avg_speed_mph', avg_speed_mph)
-
-    # Build compound filter mask for VALID trips
-    valid_mask = pc.and_(
-        pc.and_(
-            # Duration filters (valid)
-            pc.greater(duration_hours, 0),
-            pc.less_equal(duration_hours, config['max_trip_hours'])
-        ),
-        pc.and_(
-            pc.and_(
-                # Speed filters (valid)
-                pc.greater_equal(avg_speed_mph, config['min_speed_mph']),
-                pc.less_equal(avg_speed_mph, config['max_speed_mph'])
-            ),
-            pc.and_(
-                # Distance filters (valid)
-                pc.greater_equal(distance, config['min_distance_miles']),
-                pc.less_equal(distance, config['max_distance_miles'])
-            )
-        )
-    )
-
-    # INVERT to get OUTLIERS (trips that FAIL validation within top percentile)
-    outlier_mask = pc.invert(valid_mask)
-
-    # Filter to get outliers
-    outliers = pc.filter(table_top_percentile, outlier_mask)
-    num_outliers = len(outliers)
-
-    # Calculate statistics
-    stats = {
-        'total_rows': total_rows,
-        'percentile': config['percentile'],
-        'percentile_threshold': percentile_threshold,
-        'num_top_percentile': num_top_percentile,
-        'pct_top_percentile': (num_top_percentile / total_rows * 100) if total_rows > 0 else 0,
-        'num_outliers': num_outliers,
-        'pct_outliers_of_top': (num_outliers / num_top_percentile * 100) if num_top_percentile > 0 else 0,
-        'pct_outliers_of_total': (num_outliers / total_rows * 100) if total_rows > 0 else 0
-    }
-
-    return outliers, stats
-
-
-# ============================================================================
-# OUTPUT
-# ============================================================================
-
-def export_results(
-    table: pa.Table,
-    output_format: str,
-    output_path: Path = None
-) -> Tuple[Path, float]:
-    """
-    Export outliers to Parquet or CSV.
-
-    Args:
-        table: PyArrow table to export (already sorted)
-        output_format: 'parquet' or 'csv'
-        output_path: Optional custom output path
-
-    Returns:
-        tuple: (output_path, export_time_seconds)
-    """
-    # Reorder: key columns first, then other columns
-    key_cols = ['trip_distance', 'avg_speed_mph', 'trip_duration_hours',
-                'tpep_pickup_datetime', 'tpep_dropoff_datetime']
-    other_cols = [c for c in table.column_names if c not in key_cols]
-    table_reordered = table.select(key_cols + other_cols)
-
-    # Determine output path
-    if output_path is None:
-        filename = f'outliers.{output_format}'
-        output_path = Path(filename)
-    else:
-        output_path = Path(output_path)
-
-    # Export based on format
-    start = time.time()
-    if output_format == 'parquet':
-        pq.write_table(
-            table_reordered,
-            output_path,
-            compression='snappy',
-            use_dictionary=True
-        )
-    else:  # csv
-        pa_csv.write_csv(table_reordered, output_path)
-    elapsed = time.time() - start
-
-    return output_path, elapsed
-
-
-def print_outlier_insights(table: pa.Table):
-    """Print analytical insights about detected outliers."""
-    print("\n" + "="*60)
-    print("OUTLIER INSIGHTS")
-    print("="*60)
-
-    if len(table) == 0:
-        print("\n✓ No outliers detected - all trips pass validation!")
-        return
-
-    # Table is already sorted by distance descending
-    print(f"\nTop 10 most extreme outliers (by distance):")
-
-    # Get top 10 rows
-    top10_count = min(10, len(table))
-    top10_indices = pa.array(range(top10_count))
-    top10 = pc.take(table, top10_indices)
-
-    for i in range(len(top10)):
-        dist = top10['trip_distance'][i].as_py()
-        speed = top10['avg_speed_mph'][i].as_py()
-        duration = top10['trip_duration_hours'][i].as_py()
-        print(f"  {i+1:2d}. {dist:>8.2f} mi  "
-              f"@ {speed:>7.1f} mph  "
-              f"({duration:>7.2f} hours)")
-
-    # Distribution statistics
-    dist_col = table['trip_distance']
-    speed_col = table['avg_speed_mph']
-    duration_col = table['trip_duration_hours']
-
-    print(f"\nOutlier distribution:")
-    print(f"  Distance:  {pc.min(dist_col).as_py():>8.2f} - {pc.max(dist_col).as_py():>8.2f} miles")
-    print(f"  Speed:     {pc.min(speed_col).as_py():>8.1f} - {pc.max(speed_col).as_py():>8.1f} mph")
-    print(f"  Duration:  {pc.min(duration_col).as_py():>8.2f} - {pc.max(duration_col).as_py():>8.2f} hours")
-
-
 # ============================================================================
 # CORE API FUNCTION (for benchmarking and imports)
 # ============================================================================
 
-def detect_outliers_pyarrow(parquet_path: str, config: Dict) -> DetectionResult:
+def detect_outliers_duckdb(parquet_path: str, config: Dict) -> DetectionResult:
     """
-    Detect outlier trips using PyArrow (main API for benchmarking).
+    Detect outlier trips using DuckDB (main API for benchmarking).
 
-    This function encapsulates the core detection workflow:
-    1. Load parquet file and resolve column names
-    2. Detect outliers using physics-based validation
-    3. Sort by distance (descending)
+    This function uses SQL-based detection:
+    1. Calculate percentile threshold
+    2. Filter to top percentile trips
+    3. Apply physics-based validation
     4. Return results with timing
 
     Args:
@@ -418,26 +194,168 @@ def detect_outliers_pyarrow(parquet_path: str, config: Dict) -> DetectionResult:
         ValueError: If required columns not found
         Exception: For file I/O or processing errors
     """
-    # Load and normalize data
-    schema = pq.read_schema(parquet_path)
-    col_map = resolve_column_names(schema)
-    table = pq.read_table(parquet_path, use_threads=True)
-    table = normalize_table_columns(table, col_map)
+    # Create DuckDB connection
+    conn = duckdb.connect(':memory:')
 
-    # Detect outliers (timed)
+    # Resolve column names
+    col_map = resolve_column_names(conn, parquet_path)
+    dist_col = col_map['distance']
+    pickup_col = col_map['pickup']
+    dropoff_col = col_map['dropoff']
+
+    # Get total row count for statistics
+    total_rows = conn.execute(
+        f"SELECT COUNT(*) FROM parquet_scan('{parquet_path}')"
+    ).fetchone()[0]
+
+    # Calculate percentile threshold
+    percentile_threshold = conn.execute(f"""
+        SELECT PERCENTILE_CONT({config['percentile']})
+        WITHIN GROUP (ORDER BY "{dist_col}")
+        FROM parquet_scan('{parquet_path}')
+    """).fetchone()[0]
+
+    # Build SQL query for outlier detection
+    # Use actual column names in the query
     start_time = time.time()
-    outliers, stats = find_outliers(table, config)
+
+    query = f"""
+    WITH top_percentile AS (
+        SELECT *,
+            EPOCH("{dropoff_col}"::TIMESTAMP - "{pickup_col}"::TIMESTAMP) / 3600.0 AS trip_duration_hours,
+            "{dist_col}" / (EPOCH("{dropoff_col}"::TIMESTAMP - "{pickup_col}"::TIMESTAMP) / 3600.0) AS avg_speed_mph
+        FROM parquet_scan('{parquet_path}')
+        WHERE "{dist_col}" > {percentile_threshold}
+    )
+    SELECT * FROM top_percentile
+    WHERE trip_duration_hours <= 0
+       OR trip_duration_hours > {config['max_trip_hours']}
+       OR avg_speed_mph < {config['min_speed_mph']}
+       OR avg_speed_mph > {config['max_speed_mph']}
+       OR "{dist_col}" < {config['min_distance_miles']}
+       OR "{dist_col}" > {config['max_distance_miles']}
+    ORDER BY "{dist_col}" DESC
+    """
+
+    # Execute query and get results as Arrow table
+    result = conn.execute(query)
+    # Convert RecordBatchReader to PyArrow Table
+    outliers_table = result.fetch_arrow_table()
     processing_time = time.time() - start_time
 
-    # Sort by distance descending (most extreme first)
-    sorted_indices = pc.sort_indices(outliers, sort_keys=[('trip_distance', 'descending')])
-    outliers_sorted = pc.take(outliers, sorted_indices)
+    # Count trips in top percentile for statistics
+    num_top_percentile = conn.execute(f"""
+        SELECT COUNT(*)
+        FROM parquet_scan('{parquet_path}')
+        WHERE "{dist_col}" > {percentile_threshold}
+    """).fetchone()[0]
+
+    num_outliers = len(outliers_table)
+
+    # Calculate statistics
+    stats = {
+        'total_rows': total_rows,
+        'percentile': config['percentile'],
+        'percentile_threshold': float(percentile_threshold),
+        'num_top_percentile': num_top_percentile,
+        'pct_top_percentile': (num_top_percentile / total_rows * 100) if total_rows > 0 else 0,
+        'num_outliers': num_outliers,
+        'pct_outliers_of_top': (num_outliers / num_top_percentile * 100) if num_top_percentile > 0 else 0,
+        'pct_outliers_of_total': (num_outliers / total_rows * 100) if total_rows > 0 else 0
+    }
+
+    conn.close()
 
     return DetectionResult(
-        outliers_table=outliers_sorted,
+        outliers_table=outliers_table,
         processing_time=processing_time,
         stats=stats
     )
+
+
+# ============================================================================
+# OUTPUT
+# ============================================================================
+
+def export_results(
+    table: pa.Table,
+    output_format: str,
+    output_path: Path = None
+) -> tuple:
+    """
+    Export outliers to Parquet or CSV.
+
+    Args:
+        table: PyArrow table to export (already sorted)
+        output_format: 'parquet' or 'csv'
+        output_path: Optional custom output path
+
+    Returns:
+        tuple: (output_path, export_time_seconds)
+    """
+    # Determine output path
+    if output_path is None:
+        filename = f'outliers.{output_format}'
+        output_path = Path(filename)
+    else:
+        output_path = Path(output_path)
+
+    # Export based on format
+    start = time.time()
+    if output_format == 'parquet':
+        pq.write_table(
+            table,
+            output_path,
+            compression='snappy',
+            use_dictionary=True
+        )
+    else:  # csv
+        pa_csv.write_csv(table, output_path)
+    elapsed = time.time() - start
+
+    return output_path, elapsed
+
+
+def print_outlier_insights(table: pa.Table):
+    """Print analytical insights about detected outliers."""
+    import pyarrow.compute as pc
+
+    print("\n" + "="*60)
+    print("OUTLIER INSIGHTS")
+    print("="*60)
+
+    if len(table) == 0:
+        print("\n✓ No outliers detected - all trips pass validation!")
+        return
+
+    # Table is already sorted by distance descending
+    print(f"\nTop 10 most extreme outliers (by distance):")
+
+    # Get top 10 rows
+    top10_count = min(10, len(table))
+    for i in range(top10_count):
+        # Find distance column (might have original name)
+        dist_col = None
+        for col_name in table.column_names:
+            if 'distance' in col_name.lower():
+                dist_col = col_name
+                break
+
+        dist = table[dist_col][i].as_py()
+        speed = table['avg_speed_mph'][i].as_py()
+        duration = table['trip_duration_hours'][i].as_py()
+        print(f"  {i+1:2d}. {dist:>8.2f} mi  "
+              f"@ {speed:>7.1f} mph  "
+              f"({duration:>7.2f} hours)")
+
+    # Distribution statistics
+    speed_col = table['avg_speed_mph']
+    duration_col = table['trip_duration_hours']
+
+    print(f"\nOutlier distribution:")
+    print(f"  Distance:  {pc.min(table[dist_col]).as_py():>8.2f} - {pc.max(table[dist_col]).as_py():>8.2f} miles")
+    print(f"  Speed:     {pc.min(speed_col).as_py():>8.1f} - {pc.max(speed_col).as_py():>8.1f} mph")
+    print(f"  Duration:  {pc.min(duration_col).as_py():>8.2f} - {pc.max(duration_col).as_py():>8.2f} hours")
 
 
 # ============================================================================
@@ -447,21 +365,21 @@ def detect_outliers_pyarrow(parquet_path: str, config: Dict) -> DetectionResult:
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description='Detect outlier NYC taxi trips that violate physics-based constraints',
+        description='Detect outlier NYC taxi trips using DuckDB',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Default: Parquet output
-  python find_outliers.py yellow_tripdata_2025-01.parquet
+  python find_outliers_duckdb.py yellow_tripdata_2025-01.parquet
 
   # CSV output
-  python find_outliers.py data.parquet --output-format csv
+  python find_outliers_duckdb.py data.parquet --output-format csv
 
   # Custom thresholds
-  python find_outliers.py data.parquet --max-speed 70 --max-trip-hours 8
+  python find_outliers_duckdb.py data.parquet --max-speed 70 --max-trip-hours 8
 
   # Custom output path
-  python find_outliers.py data.parquet --output my_outliers.parquet
+  python find_outliers_duckdb.py data.parquet --output my_outliers.parquet
 
 Outlier Criteria:
   A trip is an outlier if it violates ANY constraint:
@@ -552,7 +470,7 @@ def main():
     }
 
     print("="*60)
-    print("NYC TAXI - OUTLIER DETECTION")
+    print("NYC TAXI - OUTLIER DETECTION (DuckDB)")
     print("="*60)
     print(f"\nInput: {args.input_file}")
     print(f"Output format: {args.output_format}")
@@ -564,31 +482,19 @@ def main():
     print(f"  Speed: {config['min_speed_mph']} - {config['max_speed_mph']} mph")
     print(f"  Duration: > 0 and <= {config['max_trip_hours']} hours")
 
-    # Load data (with timing for display)
+    # Execute detection
     print(f"\n{'='*60}")
-    print("LOADING DATA")
+    print("PROCESSING DATA")
     print("="*60)
-    start_load = time.time()
 
     try:
-        # Use core API function
-        result = detect_outliers_pyarrow(args.input_file, config)
+        result = detect_outliers_duckdb(args.input_file, config)
     except Exception as e:
         print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
-    load_time = time.time() - start_load - result.processing_time
-
-    # Get loaded table for memory info (reload schema)
-    schema = pq.read_schema(args.input_file)
-    table = pq.read_table(args.input_file, use_threads=True)
-    mem_mb = table.nbytes / 1024**2
-    print(f"✓ Loaded {len(table):,} rows, {len(table.schema)} columns ({mem_mb:.2f} MB)")
-
-    # Detection already done
-    print(f"\n{'='*60}")
-    print("DETECTING OUTLIERS")
-    print("="*60)
     print(f"✓ Outlier detection complete ({result.processing_time:.2f}s)")
 
     # Print results
@@ -606,31 +512,27 @@ def main():
         print("   No output file generated.")
         return 0
 
-    # Use already sorted outliers from result
-    outliers_sorted = result.outliers_table
-
-    # Export outliers
+    # Export outliers (already sorted from SQL ORDER BY)
     print(f"\n{'='*60}")
     print("EXPORTING OUTLIERS")
     print("="*60)
 
     output_path, export_time = export_results(
-        outliers_sorted,
+        result.outliers_table,
         args.output_format,
         args.output
     )
 
     print(f"✓ Exported to: {output_path} ({export_time:.2f}s)")
 
-    # Print insights (using sorted table)
-    print_outlier_insights(outliers_sorted)
+    # Print insights
+    print_outlier_insights(result.outliers_table)
 
     # Performance summary
-    total_time = load_time + result.processing_time + export_time
+    total_time = result.processing_time + export_time
     print("\n" + "="*60)
     print("PERFORMANCE SUMMARY")
     print("="*60)
-    print(f"  Data loading:        {load_time:>7.2f}s")
     print(f"  Outlier detection:   {result.processing_time:>7.2f}s")
     print(f"  Export ({args.output_format}):         {export_time:>7.2f}s")
     print(f"  {'─'*30}")
