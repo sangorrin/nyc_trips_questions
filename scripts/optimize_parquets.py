@@ -189,7 +189,8 @@ def optimize_parquet_file(input_path: Path, output_path: Path) -> Dict[str, Any]
     table = pc.take(table, sorted_indices)
 
     # Calculate row group size for exactly 10 row groups
-    row_group_size = total_rows // 10
+    # Use ceiling division to ensure all rows fit within 10 groups (no 11th partial group)
+    row_group_size = (total_rows + 9) // 10
 
     # Ensure we have at least some reasonable row group size
     if row_group_size < 1000:
@@ -199,6 +200,12 @@ def optimize_parquet_file(input_path: Path, output_path: Path) -> Dict[str, Any]
     # Note: We keep write_statistics=True (default) as statistics are useful
     # for query optimization even though our detector always reads row group 0
     # The sorting_columns parameter records that data is sorted by trip_distance descending
+    # Convert sort order to SortingColumn objects
+    sorting_columns = pq.SortingColumn.from_ordering(
+        table.schema,
+        [('trip_distance', 'descending')]
+    )
+
     pq.write_table(
         table,
         output_path,
@@ -206,7 +213,7 @@ def optimize_parquet_file(input_path: Path, output_path: Path) -> Dict[str, Any]
         compression='snappy',
         use_dictionary=True,
         write_statistics=True,
-        sorting_columns=[('trip_distance', 'descending')]
+        sorting_columns=sorting_columns
     )
 
     # Get output file size
