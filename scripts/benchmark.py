@@ -45,33 +45,12 @@ from detectors.find_outliers_pyarrow import detect_outliers_pyarrow, DEFAULT_CON
 from detectors.find_outliers_pyarrow_optimized import detect_outliers_pyarrow_optimized
 from detectors.find_outliers_duckdb import detect_outliers_duckdb
 
-# Try importing optional dependencies
-try:
-    import matplotlib.pyplot as plt
-    import numpy as np
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-    print("Warning: matplotlib not found. Plotting will be skipped.", file=sys.stderr)
-
-try:
-    import psutil
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_PSUTIL = False
-    print("Warning: psutil not found. Memory tracking will be disabled.", file=sys.stderr)
-
-try:
-    from tqdm import tqdm
-    HAS_TQDM = True
-except ImportError:
-    HAS_TQDM = False
-
-try:
-    import anthropic
-    HAS_ANTHROPIC = True
-except ImportError:
-    HAS_ANTHROPIC = False
+# Import required dependencies
+import matplotlib.pyplot as plt
+import numpy as np
+import psutil
+from tqdm import tqdm
+import anthropic
 
 # Configuration
 IMPLEMENTATIONS = {
@@ -131,24 +110,19 @@ def benchmark_single_run(impl_name: str, impl_func: Callable, parquet_path: Path
         # Get file size
         file_size_mb = parquet_path.stat().st_size / 1024 / 1024
 
-        # Measure memory if psutil available
-        if HAS_PSUTIL:
-            import gc
-            # Force garbage collection to get baseline memory
-            gc.collect()
-            process = psutil.Process()
-            memory_before = process.memory_info().rss / 1024 / 1024  # MB
+        # Measure memory
+        import gc
+        # Force garbage collection to get baseline memory
+        gc.collect()
+        process = psutil.Process()
+        memory_before = process.memory_info().rss / 1024 / 1024  # MB
 
-            # Run the implementation
-            result = impl_func(str(parquet_path), config)
+        # Run the implementation
+        result = impl_func(str(parquet_path), config)
 
-            # Get peak memory (RSS after processing)
-            memory_after = process.memory_info().rss / 1024 / 1024  # MB
-            peak_memory_mb = max(0, memory_after - memory_before)
-        else:
-            # Run without memory tracking
-            result = impl_func(str(parquet_path), config)
-            peak_memory_mb = 0.0
+        # Get peak memory (RSS after processing)
+        memory_after = process.memory_info().rss / 1024 / 1024  # MB
+        peak_memory_mb = max(0, memory_after - memory_before)
 
         processing_time = result.processing_time
         outlier_count = result.outlier_count
@@ -271,10 +245,6 @@ def plot_benchmarks(aggregated: Dict, output_dir: Path) -> Dict[str, str]:
 
     Returns dict with plot paths for all generated visualizations.
     """
-    if not HAS_MATPLOTLIB:
-        print("Skipping plots: matplotlib not installed")
-        return {}
-
     by_date = aggregated["by_date"]
 
     if not by_date:
@@ -484,13 +454,10 @@ def generate_html_report(results_data: Dict, plots: Dict, output_path: Path,
     # Check LLM availability
     llm_model = os.getenv('LLM_MODEL')
     llm_api_key = os.getenv('LLM_API_KEY')
-    can_use_llm = HAS_ANTHROPIC and llm_model and llm_api_key and enable_llm
+    can_use_llm = llm_model and llm_api_key and enable_llm
 
     if enable_llm and not can_use_llm:
-        if not HAS_ANTHROPIC:
-            print("Warning: anthropic package not installed. Skipping LLM analysis.")
-        elif not llm_model or not llm_api_key:
-            print("Warning: LLM_MODEL or LLM_API_KEY not set. Skipping LLM analysis.")
+        print("Warning: LLM_MODEL or LLM_API_KEY not set. Skipping LLM analysis.")
 
     # Extract just filenames for relative image paths (all files in same directory)
     time_size_plot_file = Path(plots.get('time_size_plot', '')).name if plots.get('time_size_plot') else ''
@@ -818,7 +785,7 @@ Format as clean HTML with <h3> for sections, <h4> for subsections, <p> for parag
     else:
         html_template += """        <div class="no-llm-note">
             <strong>Note:</strong> LLM analysis was skipped. Set LLM_MODEL and LLM_API_KEY environment
-            variables and install the anthropic package to enable AI-generated insights.
+            variables to enable AI-generated insights.
         </div>
 """
 
@@ -930,31 +897,19 @@ def main():
 
     # Create progress iterator
     total_runs = len(parquet_files) * len(selected_impls)
-    if HAS_TQDM:
-        progress = tqdm(total=total_runs, desc="Benchmarking", unit="run")
-    else:
-        progress = None
-        print(f"Progress: 0/{total_runs} runs completed", end="\r")
+    progress = tqdm(total=total_runs, desc="Benchmarking", unit="run")
 
-    completed = 0
     for parquet_file in parquet_files:
         for impl_name, impl_func in selected_impls.items():
             result = benchmark_single_run(impl_name, impl_func, parquet_file, DEFAULT_CONFIG)
             raw_results.append(result)
 
-            completed += 1
-            if progress:
-                progress.update(1)
-                # Add info about current run
-                status = "✓" if result["success"] else "✗"
-                progress.set_postfix_str(f"{impl_name} on {result['date']} {status}")
-            else:
-                print(f"Progress: {completed}/{total_runs} runs completed", end="\r")
+            progress.update(1)
+            # Add info about current run
+            status = "✓" if result["success"] else "✗"
+            progress.set_postfix_str(f"{impl_name} on {result['date']} {status}")
 
-    if progress:
-        progress.close()
-    else:
-        print()  # New line after progress
+    progress.close()
 
     # Count successes and failures
     successes = sum(1 for r in raw_results if r["success"])

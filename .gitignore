@@ -38,6 +38,7 @@ htmlcov/
 
 # Project specific
 parquets
+parquets_optimized
 *.csv
 *.jsonl
 
