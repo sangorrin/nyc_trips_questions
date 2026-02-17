@@ -13,8 +13,8 @@ Usage:
     # Sample 20 files distributed across the date range
     python scripts/benchmark.py --samples 20
 
-    # Specify output paths
-    python scripts/benchmark.py --output my_results.json --html report.html
+    # Specify output directory (by default scripts/benchmark)
+    python scripts/benchmark.py --output-path /tmp/
 
     # Run without LLM analysis (even if env vars set)
     python scripts/benchmark.py --no-llm
@@ -23,11 +23,10 @@ Implementations tested:
     - pyarrow: Zero-copy Arrow operations with percentile filtering
     - duckdb: SQL-based analytical engine with single-query detection
 
-Outputs:
+Outputs (written to the output path):
     - results.json: Raw and aggregated benchmark data
-    - processing_time_by_date.png: Time comparison plot
-    - memory_by_date.png: Memory comparison plot
-    - benchmark_report.html: LLM-analyzed HTML report (optional)
+    - benchmark_report.html: LLM-analyzed HTML report
+    - *.png: Comparison plot images
 """
 
 import argparse
@@ -858,17 +857,11 @@ def main():
         help="Number of files to sample (evenly distributed across dates). Default: all files"
     )
     parser.add_argument(
-        "--output",
+        "--output-path",
         "-o",
         type=Path,
-        default=Path("scripts/benchmark/results.json"),
-        help="Output path for JSON results (default: scripts/benchmark/results.json)"
-    )
-    parser.add_argument(
-        "--html",
-        type=Path,
-        default=Path("scripts/benchmark/benchmark_report.html"),
-        help="Output path for HTML report (default: scripts/benchmark/benchmark_report.html)"
+        default=Path("scripts/benchmark/"),
+        help="Output directory for benchmark results (default: scripts/benchmark/)"
     )
     parser.add_argument(
         "--no-llm",
@@ -885,11 +878,24 @@ def main():
 
     args = parser.parse_args()
 
+    # Determine output directory and results file path
+    output_path = args.output_path
+    if output_path.is_dir() or str(output_path).endswith('/'):
+        # If directory, use default filename
+        output_dir = output_path
+        results_json_path = output_dir / "results.json"
+    else:
+        # If file path specified, use it
+        output_dir = output_path.parent
+        results_json_path = output_path
+
     # Ensure output directory exists
-    output_dir = args.output.parent
     if output_dir != Path('.') and not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
         print(f"Created output directory: {output_dir}")
+
+    # Derive HTML report path from output directory
+    html_report_path = output_dir / "benchmark_report.html"
 
     # Validate parquets directory
     if not args.parquets_dir.exists():
@@ -995,32 +1001,29 @@ def main():
         "aggregated": aggregated
     }
 
-    print(f"Saving results to {args.output}...")
-    with open(args.output, 'w', encoding='utf-8') as f:
+    print(f"Saving results to {results_json_path}...")
+    with open(results_json_path, 'w', encoding='utf-8') as f:
         json.dump(results_data, f, indent=2)
     print("✓ Results saved\n")
 
     # Generate plots
     print("Generating plots...")
-    plots_dir = args.output.parent if args.output.parent != Path('.') else Path('scripts/benchmark')
-    if plots_dir != Path('.') and not plots_dir.exists():
-        plots_dir.mkdir(parents=True, exist_ok=True)
-    plots = plot_benchmarks(aggregated, plots_dir)
+    plots = plot_benchmarks(aggregated, output_dir)
     print()
 
     # Generate HTML report
     print("Generating HTML report...")
-    generate_html_report(results_data, plots, args.html, enable_llm=not args.no_llm)
+    generate_html_report(results_data, plots, html_report_path, enable_llm=not args.no_llm)
 
     print(f"\n{'='*80}")
     print("✅ Benchmark suite completed successfully!")
     print(f"{'='*80}")
     print("\nOutputs:")
-    print(f"  📊 Results JSON: {args.output}")
+    print(f"  📊 Results JSON: {results_json_path}")
     if plots:
         print(f"  📈 Time plot: {plots.get('time_plot', 'N/A')}")
         print(f"  📈 Memory plot: {plots.get('memory_plot', 'N/A')}")
-    print(f"  📄 HTML report: {args.html}")
+    print(f"  📄 HTML report: {html_report_path}")
     print()
 
     return 0 if failures == 0 else 1
