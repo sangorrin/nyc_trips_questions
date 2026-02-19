@@ -5,7 +5,7 @@ Imagine we need to process one of the Parquet files (assume 30 MB) in 20 ms. The
 
 ## Answer
 
-I built a complete production solution deployed at Fly.io that (almost) achieves this challenging requirement through strategic optimizations across storage, network, and compute layers. The solution is available in the [nyc_20ms](https://github.com/sangorrin/nyc_20ms/) directory with full source code, deployment configuration, and documentation.
+I built a complete production solution deployed at Fly.io that approaches this challenging requirement through strategic optimizations across storage, network, and compute layers. While the 20ms target was not achieved in practice (actual: ~90ms best case), the implementation demonstrates all key optimization techniques and reveals important insights about real-world cloud platform networking limitations. The solution is available in the [nyc_20ms](https://github.com/sangorrin/nyc_20ms/) directory with full source code, deployment configuration, and documentation.
 
 ### Solution Architecture
 
@@ -55,8 +55,10 @@ table = pq.read_table(buffer)  # Only top 10% by distance
 
 **Expected Impact:**
 - Data transfer: 30MB → 3MB
-- Download time: ~12ms → ~2-4ms
-- **Savings: ~8-10ms**
+- Download time (theoretical): ~12ms for 3MB
+- Download time (actual - Fly.io/Tigris): 84-120ms
+- **Theoretical savings: ~8-10ms**
+- **Actual result: Network still dominant bottleneck**
 
 #### 2. **Connection Keep-Alive - Eliminate Handshake Overhead**
 
@@ -169,9 +171,42 @@ pq.write_table(
 - Decompression: ~2-3ms for 3MB partition
 - Snappy: 2x faster than GZIP, 3x faster than ZSTD
 
+### Experimental Results Summary
+
+**Deployment Configuration:**
+- Platform: Fly.io (IAD region)
+- Storage: Tigris S3 (IAD region, co-located)
+- VM: 4 CPUs, 8GB RAM, performance tier
+- Connection: Keep-alive pooling, 50 max connections
+- CDN: Tigris CDN enabled
+
+**Actual Performance Measurements:**
+
+| Metric | Cold Request | CDN Cached | Target | Status |
+|--------|-------------|------------|--------|---------|
+| Download time (3MB) | 120.00 ms | 84.93 ms | 8-12 ms | ❌ 7-10x slower |
+| Processing time | 3.50 ms | 3.50 ms | 2-5 ms | ✅ On target |
+| Total time | ~125 ms | ~90 ms | <20 ms | ❌ 4.5-6x slower |
+
+**Key Findings:**
+1. **Network bottleneck confirmed:** 90-95% of execution time is download
+2. **Processing optimized:** PyArrow filtering achieves expected 3.5ms performance
+3. **CDN helps but insufficient:** 120ms → 85ms improvement (29% faster)
+4. **Platform limitation:** Fly.io ↔ Tigris connection much slower than theoretical bandwidth suggests
+5. **Co-location insufficient:** Regional co-location alone doesn't guarantee low latency
+
+**Theoretical vs Actual:**
+- Bandwidth calculation: 3MB ÷ 250 MB/s = 12ms
+- Actual performance: 85-120ms
+- **Gap factor: 7-10x slower than bandwidth alone would suggest**
+
+This reveals that cloud platform networking has overheads (routing, virtualization, storage access patterns) that simple bandwidth calculations don't capture.
+
 ### Performance Breakdown
 
-Expected timing for 30MB file processing:
+#### Theoretical Performance
+
+Expected timing for 30MB file processing in ideal conditions:
 
 | Operation | Time (ms) | % of Total | Optimization |
 |-----------|-----------|------------|--------------|
@@ -180,7 +215,23 @@ Expected timing for 30MB file processing:
 | **Filter Operations** | 2-3 | 15% | PyArrow vectorization |
 | **Result Formatting** | 1-2 | 10% | Minimal serialization |
 | **Network Overhead** | 0-1 | ≤5% | Keep-alive connections |
-| **TOTAL** | **13-20** | **100%** | **✅ Target achieved** |
+| **TOTAL** | **13-20** | **100%** | **🎯 Target (theoretical)** |
+
+#### Actual Experimental Results (Fly.io + Tigris)
+
+Real-world performance testing revealed significantly slower network performance:
+
+| Operation | Time (ms) | % of Total | Notes |
+|-----------|-----------|------------|-------|
+| **S3 Download (3MB) - First Request** | **120** | **92%** | Cold download from Tigris |
+| **S3 Download (3MB) - CDN Cached** | **84.93** | **90%** | Best-case with Tigris CDN |
+| **Parquet Decode** | 2-3 | 2-3% | Snappy compression |
+| **Filter Operations** | 2-3 | 2-3% | PyArrow vectorization |
+| **Result Formatting** | 1-2 | 1-2% | Minimal serialization |
+| **TOTAL (Cold)** | **~125** | **100%** | **❌ 6.25x over target** |
+| **TOTAL (Cached)** | **~90** | **100%** | **❌ 4.5x over target** |
+
+**Key Finding:** The Fly.io microVM to Tigris S3 network connection was **significantly slower than expected**, even with co-location in the same region (IAD). The download of a 3MB partition took 120ms uncached and 84.93ms with CDN caching - far exceeding the theoretical 8-12ms estimate based on bandwidth calculations.
 
 **Performance Tiers (implemented in UI):**
 - 🎯 **Green (< 20ms):** Success! Target achieved
@@ -189,21 +240,33 @@ Expected timing for 30MB file processing:
 
 ### Main Bottleneck Analysis
 
-#### 1. **Network I/O (50-60% of time)**
+#### 1. **Network I/O (Dominant Bottleneck - 90% of time)**
 
 **Nature:** Physics-bound, cannot be eliminated.
 
-**Mitigation strategies:**
-- ✅ Download only required partition (90% reduction)
-- ✅ Co-locate compute and storage (minimize latency)
-- ✅ Use keep-alive connections (no handshake overhead)
-- ⚠️ Further optimization: HTTP/3 (QUIC) for reduced latency
-- ⚠️ Further optimization: Edge caching (CloudFlare CDN)
+**Expected performance:** 8-12ms for 3MB download
+**Actual performance:** 120ms (cold) / 84.93ms (CDN cached)
 
-**Why this is dominant:**
-- 3MB at 2Gb/s (250 MB/s) = ~12ms minimum
-- Network latency adds 1-2ms per request
-- Even with optimization, this remains the limiting factor
+**Why slower than expected:**
+- Fly.io microVM networking appears bandwidth-limited or latency-constrained
+- Tigris S3 CDN caching helps (120ms → 85ms) but still insufficient
+- Even co-located services have unexpected network overhead
+- Theoretical bandwidth (2 Gbps = 250 MB/s → 12ms for 3MB) not achieved in practice
+- Real-world factors: routing, congestion, Tigris internal architecture
+
+**Mitigation strategies attempted:**
+- ✅ Download only required partition (90% reduction)
+- ✅ Co-locate compute and storage (same region IAD)
+- ✅ Use keep-alive connections (no handshake overhead)
+- ✅ Enable Tigris CDN caching
+- ⚠️ Result: Still 4.5x over target (best case)
+
+**Further optimization needed:**
+- Alternative storage closer to compute (Fly.io volumes, local cache)
+- Different cloud provider with faster interconnect
+- Pre-warm cache/prefetch strategies
+- HTTP/3 (QUIC) for reduced latency
+- External CDN (CloudFlare) instead of Tigris CDN
 
 #### 2. **Decompression Overhead (15%)**
 
@@ -338,17 +401,25 @@ python test_api.py --api-base https://nyc-outliers-detector.fly.dev \
     parquets_optimized/yellow_tripdata_2023-01.parquet
 ```
 
-**Example Output:**
+**Actual Production Results (Fly.io + Tigris):**
 ```
 Testing detection for yellow_tripdata_2023-01.parquet...
 Status: 200
-Download time: 11.23 ms
-Processing time: 3.45 ms
-Total time: 14.68 ms
-Success: True
-Message: 🎯 Amazing! Under 20ms!
+Download time: 120.00 ms (first request, cold)
+Download time: 84.93 ms (subsequent request, CDN cached)
+Processing time: 3.50 ms
+Total time: 88.43 ms (best case with caching)
+Success: False (target was < 20ms)
+Message: ❌ Too slow (over 20ms)
 Outliers found: 10
 ```
+
+**Performance Analysis:**
+- **Processing time (3.5ms):** ✅ Met expectations (PyArrow vectorization works as planned)
+- **Download time (84-120ms):** ❌ 7-10x slower than expected
+- **Total time (88-125ms):** ❌ 4-6x over the 20ms target
+
+The bottleneck is definitively the network connection between Fly.io microVMs and Tigris S3, even with regional co-location and connection pooling.
 
 ### What Would Make This Fail?
 
@@ -394,16 +465,43 @@ If 20ms is still not achievable:
 
 ### Conclusion
 
-The 20ms target is achievable but requires:
-1. **Smart partitioning** (90% data reduction)
-2. **Connection optimization** (keep-alive pooling)
-3. **Co-location** (minimize network latency)
-4. **High-performance compute** (eliminate CPU bottleneck)
-5. **Efficient compression** (fast decompression)
+**Target Achievement:** ❌ The 20ms target was **not achieved** in production deployment.
 
-The dominant bottleneck remains **network I/O** (50-60% of time), which is physics-bound and cannot be eliminated. All other optimizations focus on minimizing the remaining 40-50% through better compute, compression, and connection management.
+**Results:**
+- **Best case (cached):** ~90ms total (4.5x over target)
+- **Typical case (cold):** ~125ms total (6.25x over target)
+- **Processing alone:** ~3.5ms (well within target)
 
-The solution proves that with strategic optimizations across the entire stack, it's possible to process 30MB Parquet files in under 20ms - but it requires careful attention to every layer from storage to network to compute.
+**What worked:**
+1. ✅ **Smart partitioning** (90% data reduction) - effective
+2. ✅ **Connection optimization** (keep-alive pooling) - implemented
+3. ✅ **Co-location** (same region) - implemented but insufficient
+4. ✅ **High-performance compute** (processing only 3.5ms) - excellent
+5. ✅ **Efficient compression** (fast Snappy decompression) - effective
+
+**What didn't work as expected:**
+1. ❌ **Fly.io ↔ Tigris network performance** - 7-10x slower than theoretical
+   - Expected: 8-12ms for 3MB
+   - Actual: 84-120ms for 3MB
+   - Even with CDN caching and regional co-location
+
+**Root cause:** The dominant bottleneck is **network I/O** (90% of execution time), and the Fly.io microVM to Tigris S3 connection is significantly slower than bandwidth calculations would suggest. This appears to be a platform-specific limitation rather than a solvable optimization problem.
+
+**Lessons learned:**
+- Theoretical network calculations (bandwidth × size) don't account for real-world platform limitations
+- Even "co-located" services can have significant interconnect overhead
+- Sub-20ms operations requiring external storage may require platform-specific SLAs or custom infrastructure
+- Processing time (3.5ms) proves the compute/algorithm optimizations work perfectly
+- Network I/O remains the immovable bottleneck - you can't optimize below platform limits
+
+**To actually achieve 20ms, would require:**
+1. **In-memory caching:** Pre-load partitions into application memory (eliminates download)
+2. **Fly.io volumes:** Use local attached storage instead of Tigris
+3. **Different platform:** Try AWS Lambda + S3 in same AZ, or Cloudflare Workers + R2
+4. **Dedicated infrastructure:** Bare metal with local NVMe storage
+5. **Accept compromise:** Re-define target to 100ms (more realistic for cloud platforms)
+
+The solution proves that with strategic optimizations, it's possible to **minimize every controllable factor** - but platform networking limitations can prevent achieving aggressive sub-20ms targets when external storage is required. The 3.5ms processing time demonstrates that the outlier detection algorithm itself is not the bottleneck.
 
 ### Project Links
 
