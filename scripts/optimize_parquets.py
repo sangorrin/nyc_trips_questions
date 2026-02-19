@@ -258,6 +258,12 @@ def main():
         default=Path("parquets_optimized"),
         help="Output directory for optimized parquet files (default: parquets_optimized)"
     )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        default=False,
+        help="Overwrite existing optimized files (default: False, skip existing files)"
+    )
 
     args = parser.parse_args()
 
@@ -286,10 +292,16 @@ def main():
     # Optimize files
     print("\nStarting optimization...\n")
     results = []
+    skipped = 0
 
     # Create progress iterator with tqdm
     for parquet_file in tqdm(parquet_files, desc="Optimizing", unit="file"):
         output_file = args.output_path / parquet_file.name
+
+        # Skip if file exists and overwrite is False
+        if output_file.exists() and not args.overwrite:
+            skipped += 1
+            continue
 
         try:
             result = optimize_parquet_file(parquet_file, output_file)
@@ -314,7 +326,7 @@ def main():
     failures = sum(1 for r in results if not r['success'])
 
     print(f"\n{'='*80}")
-    print(f"Optimization completed: {successes} successes, {failures} failures")
+    print(f"Optimization completed: {successes} successes, {failures} failures, {skipped} skipped")
     print(f"{'='*80}\n")
 
     if failures > 0:
